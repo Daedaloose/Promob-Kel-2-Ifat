@@ -1,8 +1,7 @@
-name: medicore
-description: MediCore - Health Monitoring App for Students
+name: peaceful_mind
+description: A mindfulness and mental wellness app
 
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -11,18 +10,27 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^6.1.0
-  flutter_animate: ^4.3.0
-  smooth_page_indicator: ^1.1.0
-  percent_indicator: ^4.2.3
-  fl_chart: ^0.65.0
-  lottie: ^2.7.0
-  glassmorphism: ^3.0.0
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
+
+  # To use Google Fonts (Nunito), add to pubspec.yaml:
+  # Add the google_fonts package: ^6.1.0
+  #
+  # Or add Nunito as a local font:
+  # fonts:
+  #   - family: Nunito
+  #     fonts:
+  #       - asset: fonts/Nunito-Regular.ttf
+  #       - asset: fonts/Nunito-Bold.ttf
+  #         weight: 700
+  #       - asset: fonts/Nunito-ExtraBold.ttf
+  #         weight: 800
+  #       - asset: fonts/Nunito-Black.ttf
+  #         weight: 900

@@ -1,42 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'theme/app_theme.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/feature_screen.dart';
-import 'screens/compvis_screen.dart';
-import 'screens/mood_tracker_screen.dart';
-import 'screens/consultation_screen.dart';
+import 'screens/ai_chat_screen.dart';
+import 'screens/mood_detection_screen.dart';
+import 'screens/comfort_food_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF0A0E1A),
-      systemNavigationBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
     ),
   );
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const MediCoreApp());
+  runApp(const PeacefulMindApp());
 }
 
-class MediCoreApp extends StatelessWidget {
-  const MediCoreApp({super.key});
+class PeacefulMindApp extends StatelessWidget {
+  const PeacefulMindApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MediCore',
+      title: 'Peaceful Mind',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      initialRoute: '/',
+      theme: ThemeData(
+        fontFamily: 'Nunito',
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFB5D5C5),
+          primary: const Color(0xFFB5D5C5),
+          secondary: const Color(0xFF2D2D2D),
+        ),
+        useMaterial3: true,
+      ),
+      initialRoute: '/welcome',
       routes: {
-        '/': (context) => const HomeScreen(),
-        '/features': (context) => const FeatureScreen(),
-        '/compvis': (context) => const CompvisScreen(),
-        '/mood-tracker': (context) => const MoodTrackerScreen(),
-        '/consultation': (context) => const ConsultationScreen(),
+        '/welcome':   (context) => const WelcomeScreen(),
+        '/login':     (context) => const LoginScreen(),
+        '/home':      (context) => const HomeScreen(),
+        '/ai-chat':   (context) => const AiChatScreen(),
+        '/mood-scan': (context) => const MoodDetectionScreen(),
+        '/comfort-food': (context) => const ComfortFoodScreen(),
       },
     );
   }

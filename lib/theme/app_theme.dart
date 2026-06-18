@@ -1,117 +1,93 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class AppTheme {
-  // --- Color Palette ---
-  static const Color background = Color(0xFF0A0E1A);
-  static const Color surface = Color(0xFF111827);
-  static const Color surfaceLight = Color(0xFF1A2332);
-  static const Color cardBg = Color(0xFF141E2E);
+class AppColors {
+  // Primary sage green palette (from reference)
+  static const Color sageLight = Color(0xFFD4E8D8);
+  static const Color sageMedium = Color(0xFFB5D5C5);
+  static const Color sageDark = Color(0xFF8BBF9F);
+  static const Color sageDeep = Color(0xFF5A9E7A);
 
-  static const Color accent = Color(0xFF6C63FF);
-  static const Color accentGlow = Color(0x556C63FF);
-  static const Color accentPink = Color(0xFFFF6B9D);
-  static const Color accentCyan = Color(0xFF00D4FF);
-  static const Color accentGreen = Color(0xFF00E5A0);
+  // Background
+  static const Color backgroundGreen = Color(0xFFCFE3D4);
+  static const Color backgroundCream = Color(0xFFF5EFE8);
+  static const Color cardWhite = Color(0xFFFFFFFF);
+  static const Color cardGreen = Color(0xFFE8F3EB);
 
-  static const Color textPrimary = Color(0xFFF0F4FF);
-  static const Color textSecondary = Color(0xFF8A9BBF);
-  static const Color textMuted = Color(0xFF4A5568);
+  // Text colors
+  static const Color textDark = Color(0xFF1A1A1A);
+  static const Color textDarkBrown = Color(0xFF2D2D2D);
+  static const Color textGrey = Color(0xFF8A8A8A);
+  static const Color textLight = Color(0xFFB0B0B0);
 
-  static const Color borderColor = Color(0xFF1E2D45);
+  // Accent colors
+  static const Color accentOrange = Color(0xFFE8834A);
+  static const Color accentOrangeLight = Color(0xFFF5A96B);
+  static const Color accentPink = Color(0xFFE8A5A5);
+  static const Color accentYellow = Color(0xFFF5D77A);
 
-  // --- Gradients ---
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF6C63FF), Color(0xFF9B59B6)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  // Dark elements
+  static const Color darkButton = Color(0xFF1A1A1A);
+  static const Color darkCard = Color(0xFF2A2A2A);
 
-  static const LinearGradient cyanGradient = LinearGradient(
-    colors: [Color(0xFF00D4FF), Color(0xFF6C63FF)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  // Navigation
+  static const Color navBackground = Color(0xFF1A1A1A);
+}
 
-  static const LinearGradient pinkGradient = LinearGradient(
-    colors: [Color(0xFFFF6B9D), Color(0xFFFF8E53)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+class AppTextStyles {
+  static const String fontFamily = 'Nunito';
 
-  static const LinearGradient greenGradient = LinearGradient(
-    colors: [Color(0xFF00E5A0), Color(0xFF00D4FF)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient bgGradient = LinearGradient(
-    colors: [Color(0xFF0A0E1A), Color(0xFF0D1426)],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-
-  // --- Typography ---
-  static TextStyle displayLarge = GoogleFonts.spaceGrotesk(
-    fontSize: 32,
-    fontWeight: FontWeight.w700,
-    color: textPrimary,
-    letterSpacing: -1.0,
-  );
-
-  static TextStyle displayMedium = GoogleFonts.spaceGrotesk(
-    fontSize: 24,
-    fontWeight: FontWeight.w600,
-    color: textPrimary,
+  static const TextStyle heading1 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 36,
+    fontWeight: FontWeight.w900,
+    color: AppColors.textDark,
+    height: 1.1,
     letterSpacing: -0.5,
   );
 
-  static TextStyle titleLarge = GoogleFonts.spaceGrotesk(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: textPrimary,
+  static const TextStyle heading2 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
+    color: AppColors.textDark,
+    height: 1.2,
   );
 
-  static TextStyle titleMedium = GoogleFonts.spaceGrotesk(
-    fontSize: 16,
-    fontWeight: FontWeight.w500,
-    color: textPrimary,
+  static const TextStyle heading3 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textDark,
+    height: 1.3,
   );
 
-  static TextStyle bodyMedium = GoogleFonts.inter(
-    fontSize: 14,
+  static const TextStyle body = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 15,
     fontWeight: FontWeight.w400,
-    color: textSecondary,
-    height: 1.6,
+    color: AppColors.textGrey,
+    height: 1.5,
   );
 
-  static TextStyle bodySmall = GoogleFonts.inter(
+  static const TextStyle bodyBold = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 15,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textDark,
+  );
+
+  static const TextStyle caption = TextStyle(
+    fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    color: textMuted,
+    color: AppColors.textLight,
   );
 
-  static TextStyle labelStyle = GoogleFonts.inter(
-    fontSize: 11,
-    fontWeight: FontWeight.w600,
-    color: textSecondary,
-    letterSpacing: 1.2,
+  static const TextStyle button = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 16,
+    fontWeight: FontWeight.w800,
+    color: Colors.white,
+    letterSpacing: 0.5,
   );
-
-  // --- Theme Data ---
-  static ThemeData get darkTheme => ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: background,
-        colorScheme: const ColorScheme.dark(
-          primary: accent,
-          secondary: accentCyan,
-          background: background,
-          surface: surface,
-        ),
-        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
 }
