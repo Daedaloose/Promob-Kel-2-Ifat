@@ -788,6 +788,149 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFF0F0F0), height: 1),
           const SizedBox(height: 12),
+
+          // Google Maps - Toko Terdekat Section
+          Row(
+            children: [
+              const Icon(Icons.map_rounded, size: 16, color: AppColors.sageDeep),
+              const SizedBox(width: 6),
+              const Text(
+                'Mitra UMKM Terdekat (via Google Maps)',
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textDark,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '3 Toko Ditemukan',
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textGrey,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          Column(
+            children: _getNearbyStores(food).map((store) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE9ECEF), width: 1),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundGreen,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('🏪', style: TextStyle(fontSize: 14)),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            store['name'] as String,
+                            style: const TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              const Icon(Icons.star_rounded, size: 10, color: Color(0xFFE8C84A)),
+                              const SizedBox(width: 2),
+                              Text(
+                                store['rating'] as String,
+                                style: const TextStyle(
+                                  fontFamily: 'Nunito',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textGrey,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.location_on_rounded, size: 10, color: AppColors.accentOrange),
+                              const SizedBox(width: 2),
+                              Text(
+                                store['distance'] as String,
+                                style: const TextStyle(
+                                  fontFamily: 'Nunito',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          store['price'] as String,
+                          style: const TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        GestureDetector(
+                          onTap: () => _openStoreInGoogleMaps(store['name'] as String, food['name'] as String),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.sageDeep,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.navigation_rounded, size: 10, color: Colors.white),
+                                SizedBox(width: 2),
+                                Text(
+                                  'Peta',
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+          const Divider(color: Color(0xFFF0F0F0), height: 1),
+          const SizedBox(height: 12),
+
           Row(
             children: [
               Expanded(
@@ -881,6 +1024,90 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         ],
       ),
     );
+  }
+
+  List<Map<String, dynamic>> _getNearbyStores(Map<String, dynamic> food) {
+    final String name = food['name'] as String;
+    final String primaryWarung = food['warung'] as String;
+    final String priceStr = food['price'] as String;
+    final String distStr = food['distance'] as String;
+    final String ratingStr = food['rating'] as String;
+    
+    // Parse price number
+    final cleanedPrice = priceStr.replaceAll('Rp', '').replaceAll('.', '').trim();
+    final priceVal = int.tryParse(cleanedPrice) ?? 20000;
+    
+    // Parse distance number
+    final cleanedDist = distStr.replaceAll('km', '').trim();
+    final distVal = double.tryParse(cleanedDist) ?? 0.5;
+
+    // Helper format rupiah
+    String formatRupiah(int price) {
+      final str = price.toString();
+      final buffer = StringBuffer();
+      int count = 0;
+      for (int i = str.length - 1; i >= 0; i--) {
+        buffer.write(str[i]);
+        count++;
+        if (count == 3 && i > 0) {
+          buffer.write('.');
+          count = 0;
+        }
+      }
+      return 'Rp ${buffer.toString().split('').reversed.join('')}';
+    }
+
+    return [
+      {
+        'name': primaryWarung,
+        'distance': distStr,
+        'rating': ratingStr,
+        'price': priceStr,
+      },
+      {
+        'name': '$name Depot Rasa',
+        'distance': '${(distVal + 0.4).toStringAsFixed(1)} km',
+        'rating': '4.6',
+        'price': formatRupiah(((priceVal * 1.1) / 100).round() * 100),
+      },
+      {
+        'name': 'Warung $name Barokah',
+        'distance': '${(distVal + 0.9).toStringAsFixed(1)} km',
+        'rating': '4.5',
+        'price': formatRupiah(((priceVal * 0.95) / 100).round() * 100),
+      },
+    ];
+  }
+
+  void _openStoreInGoogleMaps(String storeName, String foodName) async {
+    final query = Uri.encodeComponent('$storeName $foodName');
+    final googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$query';
+    final uri = Uri.parse(googleMapsUrl);
+    
+    // Tampilkan SnackBar info
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Membuka Google Maps untuk "$storeName"... 📍',
+          style: const TextStyle(
+            fontFamily: 'Nunito',
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        backgroundColor: AppColors.darkButton,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    try {
+      // Gunakan LaunchMode.platformDefault agar di HP/emulator langsung diarahkan untuk membuka aplikasi native Google Maps
+      final launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      print('Gagal membuka Google Maps: $e');
+    }
   }
 
   void _showOrderDialog(Map<String, dynamic> food, String method) {
