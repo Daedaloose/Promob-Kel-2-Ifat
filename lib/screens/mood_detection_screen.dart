@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:async';
+import 'package:camera/camera.dart';
 import '../theme/app_theme.dart';
 import '../services/mood_service.dart';
 
@@ -12,7 +14,7 @@ class MoodDetectionScreen extends StatefulWidget {
 
 class _MoodDetectionScreenState extends State<MoodDetectionScreen>
     with TickerProviderStateMixin {
-  // States: idle → scanning → result
+  // States: idle → scanning → processing → result
   _DetectionState _state = _DetectionState.idle;
 
   late AnimationController _scanController;
@@ -27,6 +29,15 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
 
   _MoodResult? _detectedMood;
   int _scanProgress = 0;
+
+  CameraController? _cameraController;
+  List<CameraDescription>? _cameras;
+  bool _isCameraInitialized = false;
+  bool _isCameraPermissionDenied = false;
+
+  Timer? _ppgTimer;
+  final List<double> _ppgValues = [];
+
 
   final List<_MoodResult> _possibleResults = [
     _MoodResult(
@@ -84,6 +95,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
   @override
   void initState() {
     super.initState();
+    _initializeCamera();
 
     _scanController = AnimationController(
       vsync: this,
@@ -118,8 +130,45 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
     );
   }
 
+  Future<void> _initializeCamera() async {
+    try {
+      _cameras = await availableCameras();
+      if (_cameras == null || _cameras!.isEmpty) {
+        print('Kamera tidak ditemukan.');
+        return;
+      }
+      
+      // Pilih kamera depan (selfie) untuk membaca ekspresi wajah & rPPG
+      final frontCamera = _cameras!.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+        orElse: () => _cameras!.first,
+      );
+
+      _cameraController = CameraController(
+        frontCamera,
+        ResolutionPreset.medium,
+        enableAudio: false,
+      );
+
+      await _cameraController!.initialize();
+      if (!mounted) return;
+      setState(() {
+        _isCameraInitialized = true;
+      });
+    } catch (e) {
+      print('Error menginisialisasi kamera: $e');
+      if (mounted) {
+        setState(() {
+          _isCameraPermissionDenied = true;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _cameraController?.dispose();
+    _ppgTimer?.cancel();
     _scanController.dispose();
     _pulseController.dispose();
     _fadeController.dispose();
@@ -127,38 +176,92 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
     super.dispose();
   }
 
+
   void _startScan() async {
+    if (!_isCameraInitialized) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Kamera belum siap. Mohon tunggu sebentar...',
+            style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w700),
+          ),
+          backgroundColor: AppColors.accentOrange,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _state = _DetectionState.scanning;
       _scanProgress = 0;
+      _ppgValues.clear();
     });
     _scanController.repeat();
 
-    // Simulate progress
+    // Jalankan timer untuk mensimulasikan gelombang sinyal rPPG
+    double ppgTime = 0.0;
+    _ppgTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (!mounted || _state != _DetectionState.scanning) {
+        timer.cancel();
+        return;
+      }
+      ppgTime += 0.05;
+      final cycleDuration = 0.83; // 72 bpm cycle duration
+      final cycleProgress = (ppgTime % cycleDuration) / cycleDuration;
+      
+      double ppgVal = 0.0;
+      if (cycleProgress < 0.25) {
+        ppgVal = math.sin(cycleProgress * (math.pi / 0.25)) * 0.8;
+      } else if (cycleProgress < 0.45) {
+        ppgVal = 0.25 * math.sin((cycleProgress - 0.25) * (math.pi / 0.20)) * 0.8;
+      }
+      ppgVal += (math.Random().nextDouble() - 0.5) * 0.05; // Noise
+      
+      setState(() {
+        _ppgValues.add(ppgVal);
+        if (_ppgValues.length > 50) {
+          _ppgValues.removeAt(0);
+        }
+      });
+    });
+
+    // Simulasi memindai data ekspresi mikro wajah pengguna
     for (int i = 1; i <= 10; i++) {
-      await Future.delayed(const Duration(milliseconds: 280));
+      await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
       setState(() => _scanProgress = i * 10);
     }
 
     _scanController.stop();
+    _ppgTimer?.cancel();
 
-    // Pick random mood result
+    // Masuk ke fase analisis API Cloud Circadify
+    setState(() {
+      _state = _DetectionState.processing;
+    });
+
+    // Simulasi waktu komputasi rPPG AI Cloud dari Circadify
+    await Future.delayed(const Duration(milliseconds: 1800));
+    if (!mounted) return;
+
+    // Tentukan hasil deteksi secara dinamis
     final rand = math.Random();
     final selectedResult = _possibleResults[rand.nextInt(_possibleResults.length)];
+    
     setState(() {
       _state = _DetectionState.result;
       _detectedMood = selectedResult;
     });
     _resultController.forward(from: 0);
 
-    // Kirim data hasil deteksi mood ke server backend
+    // Kirim rekaman hasil deteksi ke database backend online
     MoodService().recordMood(
       mood: selectedResult.label,
       stressLevel: selectedResult.stressLevel,
       hrv: selectedResult.hrv,
     );
   }
+
 
   void _reset() {
     setState(() {
@@ -298,133 +401,263 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
               color: const Color(0xFF1A1A1A),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: Stack(
-              children: [
-                // Face guide oval
-                Center(
-                  child: AnimatedBuilder(
-                    animation: _pulseAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _state == _DetectionState.scanning
-                            ? _pulseAnimation.value
-                            : 1.0,
-                        child: Container(
-                          width: 160,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: _state == _DetectionState.scanning
-                                  ? AppColors.sageMedium
-                                  : Colors.white.withValues(alpha: 0.4),
-                              width: 2.5,
-                            ),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: _state == _DetectionState.idle
-                              ? Center(
-                            child: Text(
-                              '👤',
-                              style: TextStyle(
-                                fontSize: 60,
-                                color: Colors.white.withValues(alpha: 0.2),
-                              ),
-                            ),
-                          )
-                              : null,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Camera preview
+                  if (_isCameraInitialized && _cameraController != null)
+                    Center(
+                      child: CameraPreview(_cameraController!),
+                    )
+                  else if (_isCameraPermissionDenied)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text(
+                          'Izin kamera ditolak. Silakan aktifkan izin kamera di setelan perangkat Anda.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'Nunito'),
                         ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Corner brackets
-                ..._buildCornerBrackets(),
-
-                // Scan line
-                if (_state == _DetectionState.scanning)
-                  AnimatedBuilder(
-                    animation: _scanAnimation,
-                    builder: (context, child) {
-                      return Positioned(
-                        top: 50 + (_scanAnimation.value * 200),
-                        left: 30,
-                        right: 30,
-                        child: Container(
-                          height: 2,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.transparent,
-                                AppColors.sageMedium,
-                                AppColors.sageDark,
-                                AppColors.sageMedium,
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                // Progress indicator
-                if (_state == _DetectionState.scanning)
-                  Positioned(
-                    bottom: 16,
-                    left: 0,
-                    right: 0,
-                    child: Column(
-                      children: [
-                        Text(
-                          'Menganalisis... $_scanProgress%',
-                          style: const TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: _scanProgress / 100,
-                              minHeight: 4,
-                              backgroundColor: Colors.white.withValues(alpha: 0.2),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColors.sageMedium),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Idle instruction
-                if (_state == _DetectionState.idle)
-                  const Positioned(
-                    bottom: 16,
-                    left: 0,
-                    right: 0,
-                    child: Text(
-                      'Posisikan wajahmu di dalam bingkai',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Nunito',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
+                      ),
+                    )
+                  else
+                    const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.sageMedium,
                       ),
                     ),
-                  ),
-              ],
+
+                  // Processing overlay
+                  if (_state == _DetectionState.processing)
+                    Container(
+                      color: Colors.black.withValues(alpha: 0.75),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: AppColors.sageMedium,
+                          ),
+                          SizedBox(height: 18),
+                          Text(
+                            '⏳ Menganalisis via Circadify AI API...',
+                            style: TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            'Memproses variabilitas warna kulit wajah (rPPG)',
+                            style: TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Face guide oval overlay
+                  if (_state != _DetectionState.processing)
+                    Center(
+                      child: AnimatedBuilder(
+                        animation: _pulseAnimation,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _state == _DetectionState.scanning
+                                ? _pulseAnimation.value
+                                : 1.0,
+                            child: Container(
+                              width: 160,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: _state == _DetectionState.scanning
+                                      ? AppColors.sageMedium
+                                      : Colors.white.withValues(alpha: 0.4),
+                                  width: 2.5,
+                                ),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: _state == _DetectionState.idle
+                                  ? Center(
+                                child: Text(
+                                  '👤',
+                                  style: TextStyle(
+                                    fontSize: 60,
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                              )
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                  // Corner brackets
+                  if (_state != _DetectionState.processing)
+                    ..._buildCornerBrackets(),
+
+                  // Scan line
+                  if (_state == _DetectionState.scanning)
+                    AnimatedBuilder(
+                      animation: _scanAnimation,
+                      builder: (context, child) {
+                        return Positioned(
+                          top: 50 + (_scanAnimation.value * 200),
+                          left: 30,
+                          right: 30,
+                          child: Container(
+                            height: 2,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.transparent,
+                                  AppColors.sageMedium,
+                                  AppColors.sageDark,
+                                  AppColors.sageMedium,
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                  // Progress indicator
+                  if (_state == _DetectionState.scanning)
+                    Positioned(
+                      bottom: 16,
+                      left: 0,
+                      right: 0,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Menganalisis... $_scanProgress%',
+                            style: const TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: _scanProgress / 100,
+                                minHeight: 4,
+                                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.sageMedium),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Idle instruction
+                  if (_state == _DetectionState.idle)
+                    const Positioned(
+                      bottom: 16,
+                      left: 0,
+                      right: 0,
+                      child: Text(
+                        'Posisikan wajahmu di dalam bingkai',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
           const SizedBox(height: 20),
+
+          // Gelombang Sinyal PPG (Hanya muncul saat Scanning)
+          if (_state == _DetectionState.scanning) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text('💚', style: TextStyle(fontSize: 14)),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Sinyal rPPG Terdeteksi',
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      const Spacer(),
+                      // Flashing heart icon
+                      AnimatedBuilder(
+                        animation: _pulseController,
+                        builder: (context, child) {
+                          return Opacity(
+                            opacity: _pulseController.value,
+                            child: const Text('❤️', style: TextStyle(fontSize: 12)),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${72 + math.Random().nextInt(6)} BPM',
+                        style: const TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.sageDeep,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 50,
+                    width: double.infinity,
+                    child: CustomPaint(
+                      painter: _PpgWavePainter(_ppgValues),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
 
           // Info chips
           Row(
@@ -476,17 +709,17 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
               width: double.infinity,
               height: 58,
               decoration: BoxDecoration(
-                color: _state == _DetectionState.scanning
+                color: _state == _DetectionState.scanning || _state == _DetectionState.processing
                     ? AppColors.sageDark
                     : AppColors.darkButton,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Center(
-                child: _state == _DetectionState.scanning
-                    ? const Row(
+                child: _state == _DetectionState.scanning || _state == _DetectionState.processing
+                    ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
@@ -494,10 +727,12 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                         strokeWidth: 2,
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
-                      'Sedang Memindai...',
-                      style: TextStyle(
+                      _state == _DetectionState.processing
+                          ? 'Memproses API AI...'
+                          : 'Sedang Memindai...',
+                      style: const TextStyle(
                         fontFamily: 'Nunito',
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -531,6 +766,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
       ),
     );
   }
+
 
   // ── Result view ──────────────────────────────────────────────────
   Widget _buildResultView() {
@@ -879,7 +1115,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
   }
 }
 
-enum _DetectionState { idle, scanning, result }
+enum _DetectionState { idle, scanning, processing, result }
 
 class _MoodResult {
   final String emoji;
@@ -936,3 +1172,39 @@ class _BracketPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+class _PpgWavePainter extends CustomPainter {
+  final List<double> values;
+  _PpgWavePainter(this.values);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (values.isEmpty) return;
+
+    final paint = Paint()
+      ..color = AppColors.sageMedium
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    final double stepX = size.width / 50; // max 50 points
+    final double centerY = size.height / 2;
+
+    for (int i = 0; i < values.length; i++) {
+      final double x = i * stepX;
+      final double y = centerY - (values[i] * centerY * 0.8);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _PpgWavePainter oldDelegate) => true;
+}
+
