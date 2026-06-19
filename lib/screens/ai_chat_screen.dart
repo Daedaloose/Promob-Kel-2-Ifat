@@ -97,6 +97,13 @@ class _AiChatScreenState extends State<AiChatScreen>
   void _sendMessage(String text) async {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
+
+    // Ambil riwayat percakapan saat ini sebelum ditambahkan pesan baru
+    final List<Map<String, dynamic>> historyList = _messages.map((m) => {
+      'text': m.text,
+      'is_ai': m.isAI,
+    }).toList();
+
     setState(() {
       _messages.add(_ChatMessage(
         text: trimmedText,
@@ -108,8 +115,8 @@ class _AiChatScreenState extends State<AiChatScreen>
     _inputController.clear();
     _scrollToBottom();
 
-    // Kirim pesan curhat ke backend API (Gemini)
-    final reply = await _chatService.sendChatMessage(trimmedText);
+    // Kirim pesan curhat ke backend API (Gemini) dengan riwayat
+    final reply = await _chatService.sendChatMessage(trimmedText, history: historyList);
 
     if (!mounted) return;
     setState(() {

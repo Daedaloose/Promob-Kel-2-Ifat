@@ -26,11 +26,12 @@ class ChatService {
   }
 
   // Mengirim pesan curhat ke asisten AI backend
-  Future<String> sendChatMessage(String message) async {
+  Future<String> sendChatMessage(String message, {List<Map<String, dynamic>>? history}) async {
     try {
       final headers = await _getHeaders();
       final body = json.encode({
         'message': message,
+        'history': history,
       });
 
       final response = await http.post(
