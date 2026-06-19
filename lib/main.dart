@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'screens/welcome_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/ai_chat_screen.dart';
-import 'screens/mood_detection_screen.dart';
-import 'screens/comfort_food_screen.dart';
+import 'package:peaceful_mind/screens/welcome_screen.dart';
+import 'package:peaceful_mind/screens/login_screen.dart';
+import 'package:peaceful_mind/screens/home_screen.dart';
+import 'package:peaceful_mind/screens/ai_chat_screen.dart';
+import 'package:peaceful_mind/screens/mood_detection_screen.dart';
+import 'package:peaceful_mind/screens/comfort_food_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

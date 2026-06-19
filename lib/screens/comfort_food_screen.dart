@@ -1236,11 +1236,12 @@ class _OrderBottomSheet extends StatelessWidget {
     if (webUrl.isNotEmpty) {
       final webUri = Uri.parse(webUrl);
       try {
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        await launchUrl(webUri, mode: LaunchMode.inAppBrowserView);
       } catch (e) {
         print('Gagal membuka browser: $e');
       }
     }
+
   }
 }
 

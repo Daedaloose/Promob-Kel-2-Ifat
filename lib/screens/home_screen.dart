@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
-import 'dashboard_screen.dart';
-import 'journal_screen.dart';
-import 'stats_screen.dart';
-import 'settings_screen.dart';
+import 'package:peaceful_mind/screens/dashboard_screen.dart';
+import 'package:peaceful_mind/screens/journal_screen.dart';
+import 'package:peaceful_mind/screens/stats_screen.dart';
+import 'package:peaceful_mind/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

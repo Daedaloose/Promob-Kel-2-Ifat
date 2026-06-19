@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import '../services/chat_service.dart';
-import 'comfort_food_screen.dart';
+import 'package:peaceful_mind/screens/comfort_food_screen.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -131,8 +131,36 @@ class _AiChatScreenState extends State<AiChatScreen>
     _inputController.clear();
     _scrollToBottom();
 
-    // Kirim pesan curhat ke backend API (Gemini) dengan riwayat
-    final reply = await _chatService.sendChatMessage(trimmedText, history: historyList);
+    // Tambahkan system instruction rahasia agar AI merekomendasikan comfort food yang terdaftar di aplikasi
+    final systemPrompt = "\n\n"
+        "[MindBot System Command - DO NOT SHOW TO USER:\n"
+        "You are MindBot, a mental health AI assistant.\n"
+        "If the user expresses negative emotions (such as sedih, stres, cemas, capek, hampa, marah, kangen, kesepian, etc.), you must recommend exactly ONE or TWO comfort foods from the allowed list below to help cheer them up. You must output the food names exactly as written in the list.\n\n"
+        "Allowed comfort foods list:\n"
+        "- Martabak Manis\n"
+        "- Es Krim Coklat\n"
+        "- Pisang Goreng Keju\n"
+        "- Mie Ayam Bakso\n"
+        "- Soto Ayam\n"
+        "- Indomie Telur\n"
+        "- Nasi Goreng Kampung\n"
+        "- Ayam Geprek\n"
+        "- Gorengan Mix\n"
+        "- Es Teh Manis\n"
+        "- Wedang Jahe\n"
+        "- Boba Brown Sugar\n\n"
+        "Emotion recommendations guide:\n"
+        "- Sedih: Martabak Manis, Es Krim Coklat, Boba Brown Sugar, Pisang Goreng Keju\n"
+        "- Stres: Martabak Manis, Es Krim Coklat, Mie Ayam Bakso, Ayam Geprek, Boba Brown Sugar, Es Teh Manis\n"
+        "- Cemas: Es Krim Coklat, Mie Ayam Bakso, Wedang Jahe, Gorengan Mix\n"
+        "- Capek: Pisang Goreng Keju, Mie Ayam Bakso, Soto Ayam, Indomie Telur, Nasi Goreng Kampung, Es Teh Manis, Wedang Jahe\n"
+        "- Hampa: Martabak Manis, Pisang Goreng Keju, Soto Ayam, Indomie Telur, Nasi Goreng Kampung\n"
+        "- Marah: Ayam Geprek, Es Teh Manis\n"
+        "- Kangen / Sepi: Soto Ayam, Mie Ayam Bakso, Nasi Goreng Kampung\n\n"
+        "Write a warm, empathetic, and concise reply in Indonesian. Make sure to suggest the comfort food naturally in your response, for example: 'Mungkin semangkuk Soto Ayam hangat bisa membantu menghangatkan hatimu hari ini...']";
+
+    final messageWithPrompt = trimmedText + systemPrompt;
+    final reply = await _chatService.sendChatMessage(messageWithPrompt, history: historyList);
 
     if (!mounted) return;
     setState(() {

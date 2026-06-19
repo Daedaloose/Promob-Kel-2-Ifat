@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
-import 'ai_chat_screen.dart';
-import 'mood_detection_screen.dart';
-import 'comfort_food_screen.dart';
+import 'package:peaceful_mind/screens/ai_chat_screen.dart';
+import 'package:peaceful_mind/screens/mood_detection_screen.dart';
+import 'package:peaceful_mind/screens/comfort_food_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
