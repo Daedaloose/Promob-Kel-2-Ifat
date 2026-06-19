@@ -94,6 +94,21 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   final ChatService _chatService = ChatService();
 
+  final List<String> _detectableFoods = [
+    'Martabak Manis',
+    'Es Krim Coklat',
+    'Pisang Goreng Keju',
+    'Mie Ayam Bakso',
+    'Soto Ayam',
+    'Indomie Telur',
+    'Nasi Goreng Kampung',
+    'Ayam Geprek',
+    'Gorengan Mix',
+    'Es Teh Manis',
+    'Wedang Jahe',
+    'Boba Brown Sugar',
+  ];
+
   void _sendMessage(String text) async {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
@@ -499,6 +514,56 @@ class _AiChatScreenState extends State<AiChatScreen>
                     ),
                   ),
                 ),
+                if (isAI) ...[
+                  (() {
+                    final List<String> foundFoods = [];
+                    for (final food in _detectableFoods) {
+                      if (msg.text.toLowerCase().contains(food.toLowerCase())) {
+                        foundFoods.add(food);
+                      }
+                    }
+                    if (foundFoods.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: foundFoods.map((foodName) {
+                          return ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ComfortFoodScreen(searchFood: foodName),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.backgroundGreen,
+                              foregroundColor: AppColors.sageDeep,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            icon: const Text('🛵', style: TextStyle(fontSize: 12)),
+                            label: Text(
+                              'Cari $foodName Terdekat',
+                              style: const TextStyle(
+                                fontFamily: 'Nunito',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }()),
+                ],
                 const SizedBox(height: 4),
                 Text(
                   msg.time,

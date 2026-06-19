@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 
 class ComfortFoodScreen extends StatefulWidget {
-  const ComfortFoodScreen({super.key});
+  final String? searchFood;
+  const ComfortFoodScreen({super.key, this.searchFood});
 
   @override
   State<ComfortFoodScreen> createState() => _ComfortFoodScreenState();
@@ -19,6 +21,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   int _selectedMood = 1; // default: lagi stres
   int _selectedCategory = 0;
   String? _selectedFood;
+  String? _currentSearchQuery;
 
   final List<Map<String, dynamic>> _moodTriggers = [
     {'emoji': '😰', 'label': 'Cemas', 'color': Color(0xFFE8834A)},
@@ -196,6 +199,13 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   List<Map<String, dynamic>> get _filteredFoods {
     final moodLabel = _moodTriggers[_selectedMood]['label'];
     final category = _categories[_selectedCategory];
+    
+    if (_currentSearchQuery != null && _currentSearchQuery!.isNotEmpty) {
+      return _allFoods.where((f) {
+        return f['name'].toString().toLowerCase().contains(_currentSearchQuery!.toLowerCase());
+      }).toList();
+    }
+    
     return _allFoods.where((f) {
       final moodMatch =
       (f['mood'] as List).contains(moodLabel);
@@ -207,6 +217,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   @override
   void initState() {
     super.initState();
+    _currentSearchQuery = widget.searchFood;
 
     _fadeController = AnimationController(
       vsync: this,
@@ -465,14 +476,56 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
 
                     // Food list
                     Expanded(
-                      child: _filteredFoods.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(
-                            20, 0, 20, 100),
-                        itemCount: _filteredFoods.length,
-                        itemBuilder: (context, i) =>
-                            _buildFoodCard(_filteredFoods[i]),
+                      child: Column(
+                        children: [
+                          if (_currentSearchQuery != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.backgroundGreen,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Text('🔍', style: TextStyle(fontSize: 14)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Pencarian: "$_currentSearchQuery"',
+                                        style: const TextStyle(
+                                          fontFamily: 'Nunito',
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textDark,
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () => setState(() => _currentSearchQuery = null),
+                                      child: const Icon(
+                                        Icons.close_rounded,
+                                        size: 18,
+                                        color: AppColors.textGrey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          Expanded(
+                            child: _filteredFoods.isEmpty
+                                ? _buildEmptyState()
+                                : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(
+                                  20, 0, 20, 100),
+                              itemCount: _filteredFoods.length,
+                              itemBuilder: (context, i) =>
+                                  _buildFoodCard(_filteredFoods[i]),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -1078,22 +1131,7 @@ class _OrderBottomSheet extends StatelessWidget {
 
           // Order button
           GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Membuka $method untuk pesan ${food['name']}... 🛵',
-                    style: const TextStyle(fontFamily: 'Nunito',
-                        fontWeight: FontWeight.w700),
-                  ),
-                  backgroundColor: AppColors.darkButton,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-              );
-            },
+            onTap: () => _launchOrderApp(context, food['name'], method),
             child: Container(
               width: double.infinity,
               height: 54,
@@ -1146,6 +1184,63 @@ class _OrderBottomSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _launchOrderApp(BuildContext context, String foodName, String method) async {
+    final encodedFood = Uri.encodeComponent(foodName);
+    
+    String appUrl = '';
+    String webUrl = '';
+    
+    if (method.toLowerCase().contains('gojek') || method.toLowerCase().contains('gofood')) {
+      appUrl = 'gojek://gofood/search?query=$encodedFood';
+      webUrl = 'https://gofood.co.id/surabaya/search?q=$encodedFood';
+    } else if (method.toLowerCase().contains('grab') || method.toLowerCase().contains('grabfood')) {
+      appUrl = 'grab://open?screenType=FOOD&searchQuery=$encodedFood';
+      webUrl = 'https://food.grab.com/id/id/restaurants?search=$encodedFood';
+    } else {
+      // Jastip / other fallback: open google search
+      webUrl = 'https://www.google.com/search?q=beli+$encodedFood';
+    }
+    
+    // Matikan BottomSheet terlebih dahulu
+    Navigator.pop(context);
+    
+    // Tampilkan SnackBar info
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Membuka $method untuk mencari "$foodName"... 🛵',
+          style: const TextStyle(
+            fontFamily: 'Nunito',
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        backgroundColor: AppColors.darkButton,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+    
+    // Coba jalankan aplikasi utama (deep link)
+    if (appUrl.isNotEmpty) {
+      final appUri = Uri.parse(appUrl);
+      try {
+        final launched = await launchUrl(appUri, mode: LaunchMode.externalApplication);
+        if (launched) return;
+      } catch (e) {
+        print('Gagal membuka aplikasi utama: $e');
+      }
+    }
+    
+    // Jika aplikasi tidak terinstal (seperti di emulator), buka browser web fallback
+    if (webUrl.isNotEmpty) {
+      final webUri = Uri.parse(webUrl);
+      try {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        print('Gagal membuka browser: $e');
+      }
+    }
   }
 }
 
