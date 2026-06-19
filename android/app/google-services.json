@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743892864812",
+    "project_id": "peaceful-mind-b5b66",
+    "storage_bucket": "peaceful-mind-b5b66.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743892864812:android:1230d9d8c0484c19c96689",
+        "android_client_info": {
+          "package_name": "com.example.testpromobkel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_rGl7w8N3uxUwnJvTnA5W9hTYvXil_T0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

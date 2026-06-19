@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = AuthService();
   bool _obscurePassword = true;
   bool _isLoading = false;
 
@@ -330,19 +332,39 @@ class _LoginScreenState extends State<LoginScreen>
                       Row(
                         children: [
                           Expanded(
-                            child: _buildSocialButton(
-                              label: 'Google',
-                              emoji: '🔵',
-                              color: Colors.white,
+                            child: GestureDetector(
+                              onTap: () async {
+                                setState(() => _isLoading = true);
+                                final creds = await _authService.signInWithGoogle();
+                                setState(() => _isLoading = false);
+                                if (creds != null && mounted) {
+                                  Navigator.pushReplacementNamed(context, '/home');
+                                }
+                              },
+                              child: _buildSocialButton(
+                                label: 'Google',
+                                emoji: '🔵',
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
-                            child: _buildSocialButton(
-                              label: 'Apple',
-                              emoji: '🍎',
-                              color: AppColors.darkButton,
-                              textColor: Colors.white,
+                            child: GestureDetector(
+                              onTap: () async {
+                                setState(() => _isLoading = true);
+                                final creds = await _authService.signInWithApple();
+                                setState(() => _isLoading = false);
+                                if (creds != null && mounted) {
+                                  Navigator.pushReplacementNamed(context, '/home');
+                                }
+                              },
+                              child: _buildSocialButton(
+                                label: 'Apple',
+                                emoji: '🍎',
+                                color: AppColors.darkButton,
+                                textColor: Colors.white,
+                              ),
                             ),
                           ),
                         ],
