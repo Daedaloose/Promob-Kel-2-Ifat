@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 import 'ai_chat_screen.dart';
 import 'mood_detection_screen.dart';
@@ -73,6 +74,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final String name = user?.displayName ?? 'Chloe Brooke';
+    final String? photoUrl = user?.photoURL;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: CustomScrollView(
@@ -98,16 +103,24 @@ class _DashboardScreenState extends State<DashboardScreen>
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white, width: 2.5),
                               color: AppColors.sageDark,
+                              image: photoUrl != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(photoUrl),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
                             ),
-                            child: const Center(
-                              child: Text('👩', style: TextStyle(fontSize: 26)),
-                            ),
+                            child: photoUrl == null
+                                ? const Center(
+                                    child: Text('👩', style: TextStyle(fontSize: 26)),
+                                  )
+                                : null,
                           ),
                           const SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Row(
+                            children: [
+                              const Row(
                                 children: [
                                   Text(
                                     'Hi ',
@@ -122,8 +135,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 ],
                               ),
                               Text(
-                                'Chloe Brooke',
-                                style: TextStyle(
+                                name,
+                                style: const TextStyle(
                                   fontFamily: 'Nunito',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,

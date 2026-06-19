@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -39,6 +41,11 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final String name = user?.displayName ?? 'Chloe Brooke';
+    final String email = user?.email ?? 'chloe.brooke@email.com';
+    final String? photoUrl = user?.photoURL;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F0),
       body: FadeTransition(
@@ -77,13 +84,21 @@ class _SettingsScreenState extends State<SettingsScreen>
                                         width: 3,
                                       ),
                                       color: AppColors.sageDark,
+                                      image: photoUrl != null
+                                          ? DecorationImage(
+                                              image: NetworkImage(photoUrl),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null,
                                     ),
-                                    child: const Center(
-                                      child: Text(
-                                        '👩',
-                                        style: TextStyle(fontSize: 32),
-                                      ),
-                                    ),
+                                    child: photoUrl == null
+                                        ? const Center(
+                                            child: Text(
+                                              '👩',
+                                              style: TextStyle(fontSize: 32),
+                                            ),
+                                          )
+                                        : null,
                                   ),
                                   Positioned(
                                     right: 0,
@@ -113,9 +128,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Chloe Brooke',
-                                      style: TextStyle(
+                                    Text(
+                                      name,
+                                      style: const TextStyle(
                                         fontFamily: 'Nunito',
                                         fontSize: 18,
                                         fontWeight: FontWeight.w900,
@@ -123,9 +138,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    const Text(
-                                      'chloe.brooke@email.com',
-                                      style: TextStyle(
+                                    Text(
+                                      email,
+                                      style: const TextStyle(
                                         fontFamily: 'Nunito',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -330,8 +345,12 @@ class _SettingsScreenState extends State<SettingsScreen>
 
                       // Logout button
                       GestureDetector(
-                        onTap: () =>
-                            Navigator.pushReplacementNamed(context, '/login'),
+                        onTap: () async {
+                          await AuthService().signOut();
+                          if (mounted) {
+                            Navigator.pushReplacementNamed(context, '/login');
+                          }
+                        },
                         child: Container(
                           width: double.infinity,
                           height: 54,
