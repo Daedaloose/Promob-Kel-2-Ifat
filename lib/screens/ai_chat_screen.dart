@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import '../services/chat_service.dart';
@@ -14,6 +15,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     with TickerProviderStateMixin {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   bool _isTyping = false;
 
   late AnimationController _dotController;
@@ -53,6 +55,19 @@ class _AiChatScreenState extends State<AiChatScreen>
   @override
   void initState() {
     super.initState();
+    _focusNode.onKeyEvent = (node, event) {
+      if (event.logicalKey == LogicalKeyboardKey.enter) {
+        final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+        if (!isShiftPressed) {
+          if (event is KeyDownEvent) {
+            _sendMessage(_inputController.text);
+          }
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
+
     _dotController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -73,6 +88,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     _fadeController.dispose();
     _inputController.dispose();
     _scrollController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -364,6 +380,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                           Expanded(
                             child: TextField(
                               controller: _inputController,
+                              focusNode: _focusNode,
                               style: const TextStyle(
                                 fontFamily: 'Nunito',
                                 fontSize: 14,
