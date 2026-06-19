@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
+import '../services/mood_service.dart';
 
 class MoodDetectionScreen extends StatefulWidget {
   const MoodDetectionScreen({super.key});
@@ -144,12 +145,19 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
 
     // Pick random mood result
     final rand = math.Random();
+    final selectedResult = _possibleResults[rand.nextInt(_possibleResults.length)];
     setState(() {
       _state = _DetectionState.result;
-      _detectedMood =
-      _possibleResults[rand.nextInt(_possibleResults.length)];
+      _detectedMood = selectedResult;
     });
     _resultController.forward(from: 0);
+
+    // Kirim data hasil deteksi mood ke server backend
+    MoodService().recordMood(
+      mood: selectedResult.label,
+      stressLevel: selectedResult.stressLevel,
+      hrv: selectedResult.hrv,
+    );
   }
 
   void _reset() {

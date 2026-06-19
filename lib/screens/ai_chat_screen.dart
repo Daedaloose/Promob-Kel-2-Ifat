@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
+import '../services/chat_service.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -75,11 +76,14 @@ class _AiChatScreenState extends State<AiChatScreen>
     super.dispose();
   }
 
-  void _sendMessage(String text) {
-    if (text.trim().isEmpty) return;
+  final ChatService _chatService = ChatService();
+
+  void _sendMessage(String text) async {
+    final trimmedText = text.trim();
+    if (trimmedText.isEmpty) return;
     setState(() {
       _messages.add(_ChatMessage(
-        text: text.trim(),
+        text: trimmedText,
         isAI: false,
         time: _nowTime(),
       ));
@@ -88,26 +92,19 @@ class _AiChatScreenState extends State<AiChatScreen>
     _inputController.clear();
     _scrollToBottom();
 
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (!mounted) return;
-      setState(() {
-        _isTyping = false;
-        _messages.add(_ChatMessage(
-          text: _getAIResponse(text),
-          isAI: true,
-          time: _nowTime(),
-        ));
-      });
-      _scrollToBottom();
-    });
-  }
+    // Kirim pesan curhat ke backend API (Gemini)
+    final reply = await _chatService.sendChatMessage(trimmedText);
 
-  String _getAIResponse(String input) {
-    final lower = input.toLowerCase();
-    for (final key in _aiResponses.keys) {
-      if (lower.contains(key)) return _aiResponses[key]!;
-    }
-    return _aiResponses['default']!;
+    if (!mounted) return;
+    setState(() {
+      _isTyping = false;
+      _messages.add(_ChatMessage(
+        text: reply,
+        isAI: true,
+        time: _nowTime(),
+      ));
+    });
+    _scrollToBottom();
   }
 
   String _nowTime() {
