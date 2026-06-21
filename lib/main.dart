@@ -7,6 +7,7 @@ import 'package:peaceful_mind/screens/home_screen.dart';
 import 'package:peaceful_mind/screens/ai_chat_screen.dart';
 import 'package:peaceful_mind/screens/mood_detection_screen.dart';
 import 'package:peaceful_mind/screens/comfort_food_screen.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +26,13 @@ class PeacefulMindApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeService.themeNotifier,
+      builder: (context, mode, child) {
+        return MaterialApp(
       title: 'Peaceful Mind',
       debugShowCheckedModeBanner: false,
+      themeMode: mode,
       theme: ThemeData(
         fontFamily: 'Nunito',
         colorScheme: ColorScheme.fromSeed(
@@ -37,6 +42,15 @@ class PeacefulMindApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFB5D5C5),
+          brightness: Brightness.dark,
+        ),
+      ),
+
       initialRoute: '/welcome',
       routes: {
         '/welcome':   (context) => const WelcomeScreen(),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../services/settings_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,7 +25,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
+      _loadSettings();
+      _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
@@ -33,10 +35,132 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
+  Future<void> _loadSettings() async {
+    _darkMode = await SettingsService.getDarkMode();
+    ThemeService.setTheme(_darkMode);
+    _notifDaily = await SettingsService.getDailyReminder();
+    _notifMood = await SettingsService.getMoodReminder();
+    _notifStreak = await SettingsService.getStreakAlert();
+    _soundEnabled = await SettingsService.getSoundEnabled();
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
+  }
+
+  Future<void> _showEditProfileDialog() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    final controller = TextEditingController(
+      text: user?.displayName ?? '',
+    );
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Profile'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Display Name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await user?.updateDisplayName(
+                  controller.text.trim(),
+                );
+
+                await user?.reload();
+
+                if (mounted) {
+                  setState(() {});
+                }
+
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showPrivacyDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Privacy & Security'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.lock_reset),
+                title: Text('Change Password'),
+              ),
+              ListTile(
+                leading: Icon(Icons.privacy_tip_outlined),
+                title: Text('Privacy Policy'),
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline),
+                title: Text('Delete Account'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: Navigator.of(context).pop,
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showHelpDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Help & Support'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.email_outlined),
+                title: Text('support@peacefulmind.com'),
+              ),
+              ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text('App Version 1.0.0'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -224,7 +348,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                           title: 'Daily Reminder',
                           subtitle: 'Get notified at 9:00 AM',
                           value: _notifDaily,
-                          onChanged: (v) => setState(() => _notifDaily = v),
+                          onChanged: (v) async {
+                            await SettingsService.setDailyReminder(v);
+                            setState(() => _notifDaily = v);
+                          },
                         ),
                         _buildDivider(),
                         _buildToggleItem(
@@ -234,7 +361,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                           title: 'Mood Check-in',
                           subtitle: 'Remind me to log my mood',
                           value: _notifMood,
-                          onChanged: (v) => setState(() => _notifMood = v),
+                          onChanged: (v) async {
+                            await SettingsService.setMoodReminder(v);
+                            setState(() => _notifMood = v);
+                          },
                         ),
                         _buildDivider(),
                         _buildToggleItem(
@@ -244,7 +374,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                           title: 'Streak Alert',
                           subtitle: 'Don\'t break your streak!',
                           value: _notifStreak,
-                          onChanged: (v) => setState(() => _notifStreak = v),
+                          onChanged: (v) async {
+                            await SettingsService.setStreakAlert(v);
+                            setState(() => _notifStreak = v);
+                          },
                         ),
                       ]),
 
@@ -261,7 +394,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                           title: 'Dark Mode',
                           subtitle: 'Switch to dark theme',
                           value: _darkMode,
-                          onChanged: (v) => setState(() => _darkMode = v),
+                          onChanged: (v) async {
+                            await SettingsService.setDarkMode(v);
+                            ThemeService.setTheme(v);
+                              setState(() {
+                                _darkMode = v;
+                              });
+                            },
                         ),
                         _buildDivider(),
                         _buildToggleItem(
@@ -271,7 +410,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                           title: 'Sound & Haptics',
                           subtitle: 'Enable app sounds',
                           value: _soundEnabled,
-                          onChanged: (v) => setState(() => _soundEnabled = v),
+                          onChanged: (v) async {
+                            await SettingsService.setSoundEnabled(v);
+                            setState(() => _soundEnabled = v);
+                          },
                         ),
                         _buildDivider(),
                         _buildNavItem(
@@ -295,6 +437,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           iconBg: AppColors.backgroundGreen,
                           title: 'Edit Profile',
                           trailing: null,
+                          onTap: _showEditProfileDialog,
                         ),
                         _buildDivider(),
                         _buildNavItem(
@@ -303,6 +446,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           iconBg: const Color(0xFFD8EEF0),
                           title: 'Privacy & Security',
                           trailing: null,
+                          onTap: _showPrivacyDialog,
                         ),
                         _buildDivider(),
                         _buildNavItem(
@@ -338,6 +482,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           iconBg: const Color(0xFFEEEEEE),
                           title: 'Help & Support',
                           trailing: null,
+                          onTap: _showHelpDialog,
                         ),
                       ]),
 
@@ -547,11 +692,14 @@ class _SettingsScreenState extends State<SettingsScreen>
     required String title,
     required String? trailing,
     Widget? trailingWidget,
+    VoidCallback? onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
           Container(
             width: 40,
             height: 40,
@@ -591,11 +739,12 @@ class _SettingsScreenState extends State<SettingsScreen>
             Icons.chevron_right_rounded,
             color: AppColors.textLight,
             size: 20,
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  ),
+);
+}
 
   Widget _buildDivider() {
     return Padding(
