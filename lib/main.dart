@@ -62,6 +62,8 @@ class PeacefulMindApp extends StatelessWidget {
         '/mood-scan': (context) => const MoodDetectionScreen(),
         '/comfort-food': (context) => const ComfortFoodScreen(),
       },
+        );
+      },
     );
   }
 }
