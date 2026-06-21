@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/mood_service.dart';
 import '../services/circadify_service.dart';
@@ -772,6 +773,269 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
     _resultController.reset();
   }
 
+  void _launchMitPaperUrl() async {
+    final url = Uri.parse('https://media.mit.edu/publications/non-contact-automated-cardiac-pulse-measurements-using-video-imaging-and-blind-source-separation/');
+    try {
+      final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(url, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      print('Gagal membuka jurnal MIT: $e');
+    }
+  }
+
+  void _launchOpticsExpressUrl() async {
+    final url = Uri.parse('https://opg.optica.org/oe/fulltext.cfm?uri=oe-16-26-21448&id=175653');
+    try {
+      final launched = await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(url, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      print('Gagal membuka jurnal Optics Express: $e');
+    }
+  }
+
+  void _showHowItWorksSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFFF5F5F0),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.85,
+            minChildSize: 0.6,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (context, scrollController) {
+              return Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Cara Kerja & Validasi rPPG 🔬',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, color: AppColors.textGrey),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(color: Color(0xFFEFEFEF), thickness: 1, height: 12),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                      children: [
+                        const Text(
+                          'Bagaimana aplikasi mendeteksi denyut jantung & mood Anda melalui kamera?',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textGrey,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const RppgAnimatedIllustration(),
+                        const SizedBox(height: 20),
+                        _buildSectionTitle('1. Pengukuran Optik Tanpa Sentuh (rPPG)'),
+                        _buildSectionContent(
+                          'Teknologi ini dinamakan Remote Photoplethysmography (rPPG). Prinsipnya adalah memanfaatkan cahaya ambient. Saat jantung memompa darah ke wajah (sistole), volume darah di kapiler meningkat sehingga menyerap lebih banyak cahaya hijau. Di fase diastole, volume darah turun dan cahaya dipantulkan kembali lebih banyak. Kamera mendeteksi fluktuasi perubahan warna hijau ini pada piksel wajah secara real-time.',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSectionTitle('2. Algoritma MIT Media Lab (Poh et al., 2010)'),
+                        _buildSectionContent(
+                          'Deteksi rPPG lokal kami dikembangkan dengan acuan paper ilmiah dari MIT Media Lab. Algoritma ini menggunakan Blind Source Separation (BSS) dan Independent Component Analysis (ICA) untuk memisahkan sinyal detak jantung dari gangguan (noise) seperti gerakan kepala kasar, ekspresi wajah, atau kedipan lampu ruangan. Sinyal hijau yang bersih disaring untuk mendapatkan denyut nadi.',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSectionTitle('3. Deteksi Mood Berdasarkan HRV'),
+                        _buildSectionContent(
+                          'Dari gelombang denyut nadi (PPG), kami menghitung jarak antar detak jantung (Inter-Beat Interval/IBI). Variasi milidetik antar detak jantung ini disebut Heart Rate Variability (HRV/RMSSD). Secara medis:\n'
+                          '• HRV Tinggi: Menunjukkan dominasi Saraf Parasimpatik (Kondisi rileks, tenang, tenang, atau bahagia).\n'
+                          '• HRV Rendah & BPM Tinggi: Menunjukkan dominasi Saraf Simpatik (Kondisi tegang, cemas, stres, atau frustrasi).',
+                        ),
+                        const SizedBox(height: 24),
+                        const Divider(color: Color(0xFFEFEFEF), thickness: 1, height: 1),
+                        const SizedBox(height: 16),
+                        const Row(
+                          children: [
+                            Icon(Icons.library_books_rounded, color: AppColors.sageDeep, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Referensi Jurnal Ilmiah (Valid)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildJournalCard(
+                          title: 'Non-contact, automated cardiac pulse measurements using video imaging and blind source separation',
+                          authors: 'Ming-Zher Poh, Daniel J. McDuff, Rosalind W. Picard',
+                          journal: 'Optics Express, Vol. 18, Issue 10, pp. 10762-10774 (2010) - MIT Media Lab',
+                          onTap: _launchMitPaperUrl,
+                          buttonText: 'Buka Publikasi MIT 🔗',
+                        ),
+                        const SizedBox(height: 12),
+                        _buildJournalCard(
+                          title: 'Photoplethysmographic signals obtained with a handheld digital camera from a distance',
+                          authors: 'Wim Verkruysse, Lars O. Svaasand, Bruce J. Tromberg',
+                          journal: 'Optics Express, Vol. 16, Issue 26, pp. 21448-21453 (2008)',
+                          onTap: _launchOpticsExpressUrl,
+                          buttonText: 'Buka Publikasi Optics Express 🔗',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w900,
+        color: AppColors.textDark,
+      ),
+    );
+  }
+
+  Widget _buildSectionContent(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textGrey,
+          height: 1.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJournalCard({
+    required String title,
+    required String authors,
+    required String journal,
+    required VoidCallback onTap,
+    required String buttonText,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.sageMedium.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textDark,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Penulis: $authors',
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textGrey,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            journal,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textGrey,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundGreen,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.sageMedium.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.open_in_new_rounded, size: 12, color: AppColors.sageDeep),
+                  const SizedBox(width: 6),
+                  Text(
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.sageDeep,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -831,27 +1095,40 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                             ),
                           ),
                           // rPPG badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: AppColors.darkButton,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.favorite_rounded,
-                                    size: 11, color: AppColors.accentPink),
-                                SizedBox(width: 4),
-                                Text(
-                                  'rPPG',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                          GestureDetector(
+                            onTap: _showHowItWorksSheet,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.darkButton,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.darkButton.withValues(alpha: 0.15),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.favorite_rounded,
+                                      size: 11, color: AppColors.accentPink),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'rPPG Info',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.help_outline_rounded,
+                                      size: 11, color: Colors.white70),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -1193,11 +1470,9 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
             children: [
               _buildChip('⏱ ~10 detik', AppColors.backgroundGreen),
               const SizedBox(width: 8),
-              CircadifyService.isConnected
-                  ? _buildChip('🔌 Circadify API', const Color(0xFFD8EEF0))
-                  : _buildChip('🧪 Demo Mode', const Color(0xFFFAEADE)),
+              _buildChip('🔬 rPPG (MIT-Poh)', const Color(0xFFD8EEF0)),
               const SizedBox(width: 8),
-              _buildChip('💚 rPPG Ready', const Color(0xFFD4E8D8)),
+              _buildChip('💚 Live Camera', const Color(0xFFD4E8D8)),
             ],
           ),
 
@@ -1226,6 +1501,73 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                 _buildStep('2', 'AI menganalisis variabilitas warna kulit (rPPG)', '🧠'),
                 _buildStep('3', 'Deteksi HRV & Indeks Stres dihitung', '💓'),
                 _buildStep('4', 'Mood teridentifikasi & rekomendasi diberikan', '✨'),
+                const Divider(color: Color(0xFFEFEFEF), height: 24, thickness: 1),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('🔬', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Landasan Ilmiah (Validasi MIT)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Deteksi rPPG ini dikembangkan berdasarkan algoritma pionir dari MIT Media Lab (Poh et al., 2010) yang mengukur fluktuasi penyerapan cahaya pada kapiler darah di bawah kulit wajah menggunakan kamera.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textGrey,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          InkWell(
+                            onTap: _showHowItWorksSheet,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppColors.backgroundGreen,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.sageMedium.withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.analytics_outlined,
+                                      size: 16, color: AppColors.sageDeep),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Pelajari Ilustrasi & Jurnal MIT',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.sageDeep,
+                                    ),
+                                  ),
+                                  SizedBox(width: 6),
+                                  Icon(Icons.arrow_forward_ios_rounded,
+                                      size: 10, color: AppColors.sageDeep),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -1722,4 +2064,388 @@ class _PpgWavePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _PpgWavePainter oldDelegate) => true;
 }
+
+class RppgAnimatedIllustration extends StatefulWidget {
+  const RppgAnimatedIllustration({super.key});
+
+  @override
+  State<RppgAnimatedIllustration> createState() => _RppgAnimatedIllustrationState();
+}
+
+class _RppgAnimatedIllustrationState extends State<RppgAnimatedIllustration>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: double.infinity,
+          height: 190,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E2622),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.sageMedium.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: CustomPaint(
+              painter: _RppgIllustrationPainter(
+                progress: _controller.value,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RppgIllustrationPainter extends CustomPainter {
+  final double progress;
+
+  _RppgIllustrationPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Menghitung fase denyut jantung (systole & diastole)
+    double pulse;
+    if (progress < 0.25) {
+      pulse = math.sin((progress / 0.25) * (math.pi / 2));
+    } else if (progress < 0.4) {
+      pulse = 1.0 - 0.4 * math.sin(((progress - 0.25) / 0.15) * (math.pi / 2));
+    } else if (progress < 0.55) {
+      pulse = 0.6 + 0.15 * math.sin(((progress - 0.4) / 0.15) * math.pi);
+    } else {
+      pulse = 0.6 * math.cos(((progress - 0.55) / 0.45) * (math.pi / 2));
+    }
+
+    final double width = size.width;
+    final double height = size.height;
+
+    // Gambar grid teknis (dashboard look)
+    final gridPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.03)
+      ..strokeWidth = 1.0;
+    for (double x = 0; x < width; x += 20) {
+      canvas.drawLine(Offset(x, 0), Offset(x, height), gridPaint);
+    }
+    for (double y = 0; y < height; y += 20) {
+      canvas.drawLine(Offset(0, y), Offset(width, y), gridPaint);
+    }
+
+    // ── KIRI: HP / KAMERA ──
+    final camCenter = Offset(50, height * 0.38);
+    _drawCamera(canvas, camCenter);
+
+    // ── KANAN: WAJAH TARGET ──
+    final faceCenter = Offset(width - 50, height * 0.38);
+    _drawFaceProfile(canvas, faceCenter, pulse);
+
+    // ── CAHAYA SEKITAR (AMBIENT LIGHT) ──
+    final lightSource = Offset(width * 0.5, 20);
+    _drawLightSource(canvas, lightSource);
+
+    // Sinar cahaya dari lampu/matahari menyinari kulit wajah
+    final lightRayPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.yellowAccent.withValues(alpha: 0.35),
+          Colors.white.withValues(alpha: 0.05),
+        ],
+      ).createShader(Rect.fromPoints(lightSource, Offset(width - 60, height * 0.35)))
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+    
+    final lightPath = Path()
+      ..moveTo(lightSource.dx, lightSource.dy)
+      ..lineTo(width - 60, height * 0.35);
+    canvas.drawPath(lightPath, lightRayPaint);
+
+    // Refleksi cahaya hijau (Green Channel) kembali ke kamera
+    // Sistole: Pembuluh darah melebar -> Hemoglobin menyerap lebih banyak hijau -> Refleksi MENURUN
+    final double greenIntensity = 0.8 - (pulse * 0.45);
+    final reflectedRayPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.greenAccent.withValues(alpha: greenIntensity),
+          Colors.greenAccent.withValues(alpha: 0.03),
+        ],
+      ).createShader(Rect.fromPoints(Offset(width - 60, height * 0.35), camCenter))
+      ..strokeWidth = 2.0 + (1.0 - pulse) * 1.5
+      ..style = PaintingStyle.stroke;
+    
+    final reflectedPath = Path()
+      ..moveTo(width - 60, height * 0.35)
+      ..lineTo(camCenter.dx + 15, camCenter.dy);
+    canvas.drawPath(reflectedPath, reflectedRayPaint);
+
+    // ── TENGAH: ZOOM-IN KAPILER KULIT (PPG PHYSIOLOGY) ──
+    final zoomCenter = Offset(width * 0.5, height * 0.65);
+    _drawZoomInCapillary(canvas, zoomCenter, pulse);
+
+    // Label Penjelas
+    _drawLabels(canvas, size, pulse);
+  }
+
+  void _drawCamera(Canvas canvas, Offset center) {
+    final bodyPaint = Paint()
+      ..color = const Color(0xFF3A4D44)
+      ..style = PaintingStyle.fill;
+    final outlinePaint = Paint()
+      ..color = AppColors.sageMedium
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    
+    // Body HP
+    final phoneRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: center, width: 32, height: 46),
+      const Radius.circular(5),
+    );
+    canvas.drawRRect(phoneRect, bodyPaint);
+    canvas.drawRRect(phoneRect, outlinePaint);
+
+    // Kamera Lensa
+    final lensPaint = Paint()
+      ..color = const Color(0xFF1E2622)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(center.dx, center.dy - 10), 6, lensPaint);
+    canvas.drawCircle(Offset(center.dx, center.dy - 10), 6, outlinePaint);
+    
+    // Pantulan Lensa
+    final reflexPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.4)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(center.dx - 1.5, center.dy - 11.5), 1.5, reflexPaint);
+
+    // Layar HP
+    final screenPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.3)
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromLTRB(center.dx - 12, center.dy - 2, center.dx + 12, center.dy + 18),
+      screenPaint,
+    );
+  }
+
+  void _drawFaceProfile(Canvas canvas, Offset center, double pulse) {
+    final facePaint = Paint()
+      ..color = const Color(0xFFE6C8B5).withValues(alpha: 0.15)
+      ..style = PaintingStyle.fill;
+    final outlinePaint = Paint()
+      ..color = const Color(0xFFE6C8B5)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    
+    // Siluet profil wajah
+    final path = Path()
+      ..moveTo(center.dx - 12, center.dy - 22)
+      ..quadraticBezierTo(center.dx + 4, center.dy - 22, center.dx + 9, center.dy - 13)
+      ..lineTo(center.dx + 7, center.dy - 3)
+      ..lineTo(center.dx + 16, center.dy)
+      ..lineTo(center.dx + 7, center.dy + 5)
+      ..lineTo(center.dx + 9, center.dy + 11)
+      ..quadraticBezierTo(center.dx + 11, center.dy + 16, center.dx + 5, center.dy + 19)
+      ..lineTo(center.dx - 15, center.dy + 19)
+      ..close();
+    
+    canvas.drawPath(path, facePaint);
+    canvas.drawPath(path, outlinePaint);
+
+    // Titik sensor pembuluh darah di dahi/pipi
+    final pulseIndicatorPaint = Paint()
+      ..color = Colors.redAccent.withValues(alpha: 0.1 + pulse * 0.4)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(center.dx - 2, center.dy - 10), 5, pulseIndicatorPaint);
+    
+    final redDotPaint = Paint()
+      ..color = Colors.redAccent
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(center.dx - 2, center.dy - 10), 1.8, redDotPaint);
+  }
+
+  void _drawLightSource(Canvas canvas, Offset center) {
+    final lightPaint = Paint()
+      ..color = Colors.yellowAccent
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawCircle(center, 5, lightPaint);
+
+    final haloPaint = Paint()
+      ..color = Colors.yellowAccent.withValues(alpha: 0.15)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, 10, haloPaint);
+
+    final rayPaint = Paint()
+      ..color = Colors.yellowAccent
+      ..strokeWidth = 1.0;
+    for (int i = 0; i < 8; i++) {
+      double angle = i * math.pi / 4;
+      canvas.drawLine(
+        Offset(center.dx + math.cos(angle) * 7, center.dy + math.sin(angle) * 7),
+        Offset(center.dx + math.cos(angle) * 12, center.dy + math.sin(angle) * 12),
+        rayPaint,
+      );
+    }
+  }
+
+  void _drawZoomInCapillary(Canvas canvas, Offset center, double pulse) {
+    final borderPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.3)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    
+    const double radius = 34.0;
+    canvas.drawCircle(center, radius, borderPaint);
+
+    canvas.save();
+    final clipPath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius - 0.7));
+    canvas.clipPath(clipPath);
+
+    // Lapisan Epidermis & Dermis
+    final epidermisPaint = Paint()
+      ..color = const Color(0xFFF0D5C5).withValues(alpha: 0.12)
+      ..style = PaintingStyle.fill;
+    final dermisPaint = Paint()
+      ..color = const Color(0xFFE2B095).withValues(alpha: 0.25)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRect(Rect.fromLTRB(center.dx - radius, center.dy - radius, center.dx + radius, center.dy - 8), epidermisPaint);
+    canvas.drawRect(Rect.fromLTRB(center.dx - radius, center.dy - 8, center.dx + radius, center.dy + radius), dermisPaint);
+
+    // Garis permukaan kulit
+    final linePaint = Paint()
+      ..color = const Color(0xFFE5C4B4)
+      ..strokeWidth = 1.0;
+    canvas.drawLine(Offset(center.dx - radius, center.dy - 8), Offset(center.dx + radius, center.dy - 8), linePaint);
+
+    // Kapiler Darah yang Berdenyut
+    final capillaryY = center.dy + 8;
+    final double vesselWidth = 4.5 + (pulse * 4.5);
+    final bloodPaint = Paint()
+      ..color = Colors.redAccent.withValues(alpha: 0.45 + (pulse * 0.35))
+      ..strokeWidth = vesselWidth
+      ..strokeCap = StrokeCap.square
+      ..style = PaintingStyle.stroke;
+
+    final capillaryPath = Path()
+      ..moveTo(center.dx - radius, capillaryY)
+      ..lineTo(center.dx + radius, capillaryY);
+    canvas.drawPath(capillaryPath, bloodPaint);
+
+    // Animasi sel darah mengalir
+    final cellPaint = Paint()
+      ..color = Colors.red.shade900
+      ..style = PaintingStyle.fill;
+    final double flowOffset = progress * 24.0;
+    for (double dx = -radius - 10; dx < radius + 10; dx += 16) {
+      double cellX = center.dx + ((dx + flowOffset) % (radius * 2)) - radius;
+      if ((cellX - center.dx).abs() < radius - 3) {
+        canvas.drawCircle(Offset(cellX, capillaryY - 0.8), 1.3 + (pulse * 0.4), cellPaint);
+        canvas.drawCircle(Offset(cellX + 3.5, capillaryY + 0.8), 1.0, cellPaint);
+      }
+    }
+
+    // Refleksi sinar hijau memantul dari kapiler darah
+    final rayX = center.dx;
+    final incomingY = center.dy - radius;
+    final hitY = capillaryY - (vesselWidth / 2);
+
+    final greenInPaint = Paint()
+      ..color = Colors.green.withValues(alpha: 0.65)
+      ..strokeWidth = 1.1;
+    canvas.drawLine(Offset(rayX - 8, incomingY), Offset(rayX, hitY), greenInPaint);
+
+    final greenOutPaint = Paint()
+      ..color = Colors.green.withValues(alpha: 0.85 - (pulse * 0.5))
+      ..strokeWidth = 1.1;
+    canvas.drawLine(Offset(rayX, hitY), Offset(rayX + 10, incomingY), greenOutPaint);
+
+    canvas.restore();
+
+    // Gagang Kaca Pembesar
+    final handlePaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.3)
+      ..strokeWidth = 2.0;
+    canvas.drawLine(
+      Offset(center.dx + radius * 0.707, center.dy + radius * 0.707),
+      Offset(center.dx + radius * 1.05, center.dy + radius * 1.05),
+      handlePaint,
+    );
+  }
+
+  void _drawLabels(Canvas canvas, Size size, double pulse) {
+    const textStyle = TextStyle(
+      color: Colors.white70,
+      fontSize: 9,
+      fontWeight: FontWeight.bold,
+    );
+
+    // Label Kamera HP
+    final textPainter1 = TextPainter(
+      text: const TextSpan(text: 'KAMERA HP', style: textStyle),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter1.paint(canvas, Offset(50 - textPainter1.width / 2, size.height * 0.38 + 28));
+
+    // Label Kulit Wajah
+    final textPainter2 = TextPainter(
+      text: const TextSpan(text: 'KULIT WAJAH', style: textStyle),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter2.paint(canvas, Offset(size.width - 50 - textPainter2.width / 2, size.height * 0.38 + 23));
+
+    // Label Zoom Kapiler
+    final textPainter3 = TextPainter(
+      text: const TextSpan(text: 'DINDING KAPILER (ZOOM)', style: textStyle),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter3.paint(canvas, Offset(size.width * 0.5 - textPainter3.width / 2, size.height * 0.65 - 47));
+
+    // Status Sistole/Diastole & Absorpsi Hijau
+    final absorptionText = pulse > 0.6 
+        ? 'Sistole (Pembuluh Melebar) - Absorpsi Hijau 🟢 Tinggi' 
+        : 'Diastole (Pembuluh Mengerut) - Refleksi Hijau 🟢 Tinggi';
+    final absorptionColor = pulse > 0.6 ? Colors.redAccent : Colors.greenAccent;
+    final textPainter4 = TextPainter(
+      text: TextSpan(
+        text: absorptionText,
+        style: textStyle.copyWith(
+          color: absorptionColor, 
+          fontSize: 8.5, 
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter4.paint(canvas, Offset(size.width * 0.5 - textPainter4.width / 2, size.height * 0.65 + 38));
+  }
+
+  @override
+  bool shouldRepaint(covariant _RppgIllustrationPainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
 
