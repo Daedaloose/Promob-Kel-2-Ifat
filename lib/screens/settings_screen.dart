@@ -4,6 +4,8 @@ import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../services/settings_service.dart';
 import '../services/theme_service.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,6 +18,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+
+  String? _profileImagePath;
 
   bool _notifDaily = true;
   bool _notifMood = true;
@@ -43,6 +47,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     _notifMood = await SettingsService.getMoodReminder();
     _notifStreak = await SettingsService.getStreakAlert();
     _soundEnabled = await SettingsService.getSoundEnabled();
+
+    _profileImagePath =
+        await SettingsService.getProfileImage();
 
     if (mounted) {
       setState(() {});
@@ -206,6 +213,21 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
+  Future<void> _pickProfileImage() async {
+    final picker = ImagePicker();
+
+    final XFile? image =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
+    await SettingsService.setProfileImage(image.path);
+
+    setState(() {
+      _profileImagePath = image.path;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -239,8 +261,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                           child: Row(
                             children: [
                               // Avatar
-                              Stack(
-                                children: [
+                              GestureDetector(
+                                onTap: _pickProfileImage,
+                                child: Stack(
+                                  children: [
                                   Container(
                                     width: 64,
                                     height: 64,
@@ -251,14 +275,21 @@ class _SettingsScreenState extends State<SettingsScreen>
                                         width: 3,
                                       ),
                                       color: AppColors.sageDark,
-                                      image: photoUrl != null
+                                      image: _profileImagePath != null
                                           ? DecorationImage(
-                                              image: NetworkImage(photoUrl),
+                                              image: FileImage(
+                                                File(_profileImagePath!),
+                                              ),
                                               fit: BoxFit.cover,
                                             )
-                                          : null,
+                                          : photoUrl != null
+                                              ? DecorationImage(
+                                                  image: NetworkImage(photoUrl),
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : null,
                                     ),
-                                    child: photoUrl == null
+                                    child: (_profileImagePath == null && photoUrl == null)
                                         ? const Center(
                                             child: Text(
                                               '👩',
@@ -289,6 +320,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     ),
                                   ),
                                 ],
+                              ),
                               ),
                               const SizedBox(width: 14),
                               Expanded(

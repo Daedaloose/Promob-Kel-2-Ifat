@@ -50,4 +50,14 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('soundEnabled') ?? true;
   }
+
+  static Future<void> setProfileImage(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profileImage', path);
+  }
+
+  static Future<String?> getProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('profileImage');
+  }
 }
