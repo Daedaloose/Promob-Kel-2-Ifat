@@ -52,11 +52,49 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email dan password tidak boleh kosong.'),
+          backgroundColor: AppColors.accentOrange,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (mounted) {
-      setState(() => _isLoading = false);
-      Navigator.pushReplacementNamed(context, '/home');
+    try {
+      final creds = await _authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      if (creds != null && mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMsg = 'Gagal masuk. Silakan cek email & password Anda.';
+        if (e.toString().contains('user-not-found') || e.toString().contains('invalid-credential')) {
+          errorMsg = 'Email atau password salah.';
+        } else if (e.toString().contains('wrong-password')) {
+          errorMsg = 'Password salah.';
+        } else if (e.toString().contains('invalid-email')) {
+          errorMsg = 'Format email tidak valid.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: AppColors.accentOrange,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -374,28 +412,31 @@ class _LoginScreenState extends State<LoginScreen>
 
                       // Sign up link
                       Center(
-                        child: RichText(
-                          text: TextSpan(
-                            text: "Don't have an account? ",
-                            style: const TextStyle(
-                              fontFamily: 'Nunito',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textGrey,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'Sign Up',
-                                style: TextStyle(
-                                  fontFamily: 'Nunito',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.sageDeep,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColors.sageDeep,
-                                ),
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(context, '/signup'),
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Don't have an account? ",
+                              style: const TextStyle(
+                                fontFamily: 'Nunito',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textGrey,
                               ),
-                            ],
+                              children: [
+                                TextSpan(
+                                  text: 'Sign Up',
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.sageDeep,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.sageDeep,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

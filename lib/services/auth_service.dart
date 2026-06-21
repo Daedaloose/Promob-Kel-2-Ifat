@@ -11,6 +11,60 @@ class AuthService {
   // Endpoint backend FastAPI (menggunakan URL Vercel online agar bisa diakses dari HP fisik & luar emulator)
   static const String backendUrl = 'https://promob-backend.vercel.app';
 
+  // --- Sign Up with Email and Password ---
+  Future<UserCredential?> signUpWithEmailAndPassword({
+    required String email,
+    required String password,
+    required String name,
+  }) async {
+    try {
+      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        await user.updateDisplayName(name);
+        await user.reload();
+
+        final String? idToken = await _auth.currentUser?.getIdToken();
+        if (idToken != null) {
+          await sendTokenToBackend(idToken);
+        }
+      }
+      return userCredential;
+    } catch (e) {
+      print('Error Email Sign-Up: $e');
+      rethrow;
+    }
+  }
+
+  // --- Sign In with Email and Password ---
+  Future<UserCredential?> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        final String? idToken = await user.getIdToken();
+        if (idToken != null) {
+          await sendTokenToBackend(idToken);
+        }
+      }
+      return userCredential;
+    } catch (e) {
+      print('Error Email Sign-In: $e');
+      rethrow;
+    }
+  }
+
   // Getter user saat ini
   User? get currentUser => _auth.currentUser;
 

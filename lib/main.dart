@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:peaceful_mind/screens/welcome_screen.dart';
 import 'package:peaceful_mind/screens/login_screen.dart';
+import 'package:peaceful_mind/screens/signup_screen.dart';
 import 'package:peaceful_mind/screens/home_screen.dart';
 import 'package:peaceful_mind/screens/ai_chat_screen.dart';
 import 'package:peaceful_mind/screens/mood_detection_screen.dart';
@@ -55,6 +56,7 @@ class PeacefulMindApp extends StatelessWidget {
       routes: {
         '/welcome':   (context) => const WelcomeScreen(),
         '/login':     (context) => const LoginScreen(),
+        '/signup':    (context) => const SignUpScreen(),
         '/home':      (context) => const HomeScreen(),
         '/ai-chat':   (context) => const AiChatScreen(),
         '/mood-scan': (context) => const MoodDetectionScreen(),
