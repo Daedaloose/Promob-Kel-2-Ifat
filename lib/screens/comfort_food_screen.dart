@@ -5,6 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
+import '../services/journal_service.dart';
+
 
 class ComfortFoodScreen extends StatefulWidget {
   final String? searchFood;
@@ -31,6 +33,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   String _currentAddress = 'Mencari alamat...';
   List<Map<String, dynamic>> _realStores = [];
   bool _isFetchingStores = false;
+  bool _isSimulatedLocation = false;
 
   final List<Map<String, dynamic>> _moodTriggers = [
     {'emoji': '😰', 'label': 'Cemas', 'color': Color(0xFFE8834A)},
@@ -294,10 +297,32 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         timeLimit: const Duration(seconds: 10),
       );
 
+      bool isSimulated = false;
+      // Deteksi jika koordinat berada di luar Indonesia (Emulator California / simulator)
+      if (position.latitude > 6.0 ||
+          position.latitude < -11.0 ||
+          position.longitude < 95.0 ||
+          position.longitude > 141.0) {
+        isSimulated = true;
+        position = Position(
+          latitude: -7.279672,
+          longitude: 112.768294,
+          timestamp: DateTime.now(),
+          accuracy: 1.0,
+          altitude: 1.0,
+          heading: 1.0,
+          speed: 1.0,
+          speedAccuracy: 1.0,
+          altitudeAccuracy: 1.0,
+          headingAccuracy: 1.0,
+        );
+      }
+
       if (!mounted) return;
       setState(() {
         _currentPosition = position;
         _locationGranted = true;
+        _isSimulatedLocation = isSimulated;
       });
 
       await _fetchNearbyRestaurantsFromOSM(position.latitude, position.longitude);
@@ -308,6 +333,194 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
     } finally {
       _stopLocationLoading();
     }
+  }
+
+  void _showAddJournalBottomSheet() {
+    final moodLabel = _moodTriggers[_selectedMood]['label'];
+    final moodEmoji = _moodTriggers[_selectedMood]['emoji'];
+    final titleController = TextEditingController(text: 'Catatan Mood: $moodEmoji $moodLabel');
+    final contentController = TextEditingController(
+      text: 'Hari ini saya merasa $moodLabel. Saya sedang membuka halaman Comfort Food untuk mencari makanan yang cocok untuk menenangkan pikiran.',
+    );
+    bool isSaving = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(28),
+                topRight: Radius.circular(28),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0E0E0),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Text('📖', style: TextStyle(fontSize: 24)),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Simpan Mood ke Jurnal',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Judul Jurnal',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textGrey,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    hintText: 'Masukkan judul...',
+                    filled: true,
+                    fillColor: const Color(0xFFF8F9FA),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textDark),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Isi Jurnal',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textGrey,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: contentController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: 'Tuliskan perasaanmu...',
+                    filled: true,
+                    fillColor: const Color(0xFFF8F9FA),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            final title = titleController.text.trim();
+                            final content = contentController.text.trim();
+                            if (title.isEmpty || content.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Judul dan isi jurnal wajib diisi.')),
+                              );
+                              return;
+                            }
+
+                            setSheetState(() => isSaving = true);
+                            try {
+                              final result = await JournalService().createJournal(
+                                title: title,
+                                content: content,
+                                mood: moodLabel,
+                                tag: 'Comfort Food',
+                              );
+                              if (result != null) {
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Berhasil mencatat mood $moodEmoji ke jurnal! 📖'),
+                                      backgroundColor: AppColors.sageDeep,
+                                    ),
+                                  );
+                                }
+                              } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Gagal menyimpan jurnal ke server.')),
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: $e')),
+                                );
+                              }
+                            } finally {
+                              setSheetState(() => isSaving = false);
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.sageDeep,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Simpan ke Jurnal',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _stopLocationLoading() {
@@ -557,6 +770,29 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                           );
                         }),
                       ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: _showAddJournalBottomSheet,
+                          icon: const Icon(Icons.edit_note_rounded, size: 20, color: AppColors.sageDeep),
+                          label: const Text(
+                            'Catat Mood ini ke Jurnal',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.sageDeep,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white.withValues(alpha: 0.6),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(color: AppColors.backgroundGreen, width: 1),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -782,16 +1018,35 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _isLoadingLocation ? null : _requestLocation,
+            child: _isLoadingLocation
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.sageDeep),
+                    ),
+                  )
+                : const Icon(
+                    Icons.refresh_rounded,
+                    color: AppColors.sageDeep,
+                    size: 20,
+                  ),
+          ),
+          const SizedBox(width: 8),
           Container(
             padding:
             const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.sageDeep,
+              color: _isSimulatedLocation ? AppColors.accentOrange : AppColors.sageDeep,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Text(
-              '📍 Aktif',
-              style: TextStyle(
+            child: Text(
+              _isSimulatedLocation ? '📍 Simulasi' : '📍 Aktif',
+              style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -1165,33 +1420,11 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   }
 
   List<Map<String, dynamic>> _getNearbyStores(Map<String, dynamic> food) {
-    if (_locationGranted && _realStores.isNotEmpty) {
-      final List<Map<String, dynamic>> results = [];
-      // Take up to 3 closest restaurants
-      for (int i = 0; i < math.min(3, _realStores.length); i++) {
-        results.add({
-          'name': _realStores[i]['name'],
-          'distance': _realStores[i]['distance'],
-          'rating': _realStores[i]['rating'],
-          'price': _realStores[i]['price'],
-        });
-      }
-      return results;
-    }
-
-    final String name = food['name'] as String;
+    final String foodName = food['name'] as String;
     final String primaryWarung = food['warung'] as String;
     final String priceStr = food['price'] as String;
     final String distStr = food['distance'] as String;
     final String ratingStr = food['rating'] as String;
-    
-    // Parse price number
-    final cleanedPrice = priceStr.replaceAll('Rp', '').replaceAll('.', '').trim();
-    final priceVal = int.tryParse(cleanedPrice) ?? 20000;
-    
-    // Parse distance number
-    final cleanedDist = distStr.replaceAll('km', '').trim();
-    final distVal = double.tryParse(cleanedDist) ?? 0.5;
 
     // Helper format rupiah
     String formatRupiah(int price) {
@@ -1209,6 +1442,109 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
       return 'Rp ${buffer.toString().split('').reversed.join('')}';
     }
 
+    if (_locationGranted && _realStores.isNotEmpty) {
+      final String foodNameLower = foodName.toLowerCase();
+      final String categoryLower = (food['category'] as String).toLowerCase();
+
+      // Filter real stores based on keywords
+      List<Map<String, dynamic>> matchedStores = _realStores.where((store) {
+        final String storeNameLower = store['name'].toString().toLowerCase();
+
+        // Specific keyword matching
+        if (foodNameLower == 'martabak manis' && (storeNameLower.contains('martabak') || storeNameLower.contains('terang bulan') || storeNameLower.contains('roti') || storeNameLower.contains('kue') || storeNameLower.contains('sweet') || storeNameLower.contains('bakery'))) return true;
+        if (foodNameLower == 'es krim coklat' && (storeNameLower.contains('es') || storeNameLower.contains('krim') || storeNameLower.contains('ice') || storeNameLower.contains('gelato') || storeNameLower.contains('cream') || storeNameLower.contains('cafe'))) return true;
+        if (foodNameLower == 'pisang goreng keju' && (storeNameLower.contains('goreng') || storeNameLower.contains('pisang') || storeNameLower.contains('warung') || storeNameLower.contains('depot') || storeNameLower.contains('kedai'))) return true;
+
+        if (foodNameLower == 'mie ayam bakso' && (storeNameLower.contains('mie') || storeNameLower.contains('bakso') || storeNameLower.contains('pangsit') || storeNameLower.contains('noodle') || storeNameLower.contains('baso') || storeNameLower.contains('ramen'))) return true;
+        if (foodNameLower == 'soto ayam' && (storeNameLower.contains('soto') || storeNameLower.contains('sup') || storeNameLower.contains('warung') || storeNameLower.contains('depot') || storeNameLower.contains('sari'))) return true;
+        if (foodNameLower == 'indomie telur' && (storeNameLower.contains('warkop') || storeNameLower.contains('kopi') || storeNameLower.contains('warung') || storeNameLower.contains('indomie') || storeNameLower.contains('tenda'))) return true;
+
+        if (foodNameLower == 'nasi goreng kampung' && (storeNameLower.contains('nasgor') || storeNameLower.contains('nasi') || storeNameLower.contains('goreng') || storeNameLower.contains('warung') || storeNameLower.contains('depot'))) return true;
+        if (foodNameLower == 'ayam geprek' && (storeNameLower.contains('geprek') || storeNameLower.contains('ayam') || storeNameLower.contains('penyet') || storeNameLower.contains('warung') || storeNameLower.contains('resto'))) return true;
+        if (foodNameLower == 'gorengan mix' && (storeNameLower.contains('goreng') || storeNameLower.contains('warung') || storeNameLower.contains('tenda') || storeNameLower.contains('depot'))) return true;
+
+        if (foodNameLower == 'es teh manis' && (storeNameLower.contains('teh') || storeNameLower.contains('es') || storeNameLower.contains('warung') || storeNameLower.contains('warkop') || storeNameLower.contains('kopi') || storeNameLower.contains('kedai'))) return true;
+        if (foodNameLower == 'wedang jahe' && (storeNameLower.contains('jahe') || storeNameLower.contains('wedang') || storeNameLower.contains('angkringan') || storeNameLower.contains('warkop') || storeNameLower.contains('kopi'))) return true;
+        if (foodNameLower == 'boba brown sugar' && (storeNameLower.contains('boba') || storeNameLower.contains('tea') || storeNameLower.contains('bubble') || storeNameLower.contains('cafe') || storeNameLower.contains('kopi') || storeNameLower.contains('drink'))) return true;
+
+        // Broad category matching
+        if (categoryLower == 'manis' && (storeNameLower.contains('cafe') || storeNameLower.contains('kopi') || storeNameLower.contains('bakery') || storeNameLower.contains('sweet') || storeNameLower.contains('dessert') || storeNameLower.contains('ice') || storeNameLower.contains('es') || storeNameLower.contains('kue'))) return true;
+        if (categoryLower == 'hangat' && (storeNameLower.contains('soto') || storeNameLower.contains('mie') || storeNameLower.contains('bakso') || storeNameLower.contains('sup') || storeNameLower.contains('warung') || storeNameLower.contains('ramen') || storeNameLower.contains('depot'))) return true;
+        if (categoryLower == 'gurih' && (storeNameLower.contains('warung') || storeNameLower.contains('depot') || storeNameLower.contains('goreng') || storeNameLower.contains('ayam') || storeNameLower.contains('nasi') || storeNameLower.contains('resto') || storeNameLower.contains('geprek') || storeNameLower.contains('daging'))) return true;
+        if (categoryLower == 'minuman' && (storeNameLower.contains('kopi') || storeNameLower.contains('cafe') || storeNameLower.contains('teh') || storeNameLower.contains('boba') || storeNameLower.contains('drink') || storeNameLower.contains('es') || storeNameLower.contains('juice'))) return true;
+
+        return false;
+      }).toList();
+
+      // If we don't have enough matched stores, use the general list but customize their names to sound realistic
+      if (matchedStores.length < 3) {
+        final List<Map<String, dynamic>> customized = [];
+        // First add any actual keyword matches
+        for (final store in matchedStores) {
+          customized.add({
+            'name': store['name'],
+            'distance': store['distance'],
+            'rating': store['rating'],
+            'price': store['price'],
+          });
+        }
+        
+        // Then fill the rest using general stores with customized names
+        for (final store in _realStores) {
+          if (customized.length >= 3) break;
+          final String name = store['name'];
+          // Skip if already added
+          if (customized.any((element) => element['name'] == name)) continue;
+
+          String customizedName = name;
+          if (!name.toLowerCase().contains(foodNameLower.split(' ')[0])) {
+            if (foodNameLower == 'martabak manis') {
+              customizedName = name.startsWith('Warung') || name.startsWith('Depot') 
+                  ? name.replaceFirst('Warung', 'Martabak Manis').replaceFirst('Depot', 'Martabak Manis')
+                  : 'Martabak Manis $name';
+            } else if (foodNameLower == 'mie ayam bakso') {
+              customizedName = 'Mie Ayam & Bakso $name';
+            } else if (foodNameLower == 'soto ayam') {
+              customizedName = 'Soto Ayam $name';
+            } else if (foodNameLower == 'ayam geprek') {
+              customizedName = 'Ayam Geprek $name';
+            } else if (foodNameLower == 'es krim coklat') {
+              customizedName = 'Es Krim & Gelato $name';
+            } else if (foodNameLower == 'boba brown sugar') {
+              customizedName = 'Boba & Kopi $name';
+            } else {
+              customizedName = '$name (Sedia $foodName)';
+            }
+          }
+
+          customized.add({
+            'name': customizedName,
+            'distance': store['distance'],
+            'rating': store['rating'],
+            'price': store['price'],
+          });
+        }
+        return customized;
+      }
+
+      final List<Map<String, dynamic>> results = [];
+      for (int i = 0; i < math.min(3, matchedStores.length); i++) {
+        results.add({
+          'name': matchedStores[i]['name'],
+          'distance': matchedStores[i]['distance'],
+          'rating': matchedStores[i]['rating'],
+          'price': matchedStores[i]['price'],
+        });
+      }
+      return results;
+    }
+
+    final cleanedPrice = priceStr.replaceAll('Rp', '').replaceAll('.', '').trim();
+    final priceVal = int.tryParse(cleanedPrice) ?? 20000;
+
+    final cleanedDist = distStr.replaceAll('km', '').trim();
+    final distVal = double.tryParse(cleanedDist) ?? 0.5;
+
     return [
       {
         'name': primaryWarung,
@@ -1217,13 +1553,13 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         'price': priceStr,
       },
       {
-        'name': '$name Depot Rasa',
+        'name': '$foodName Depot Rasa',
         'distance': '${(distVal + 0.4).toStringAsFixed(1)} km',
         'rating': '4.6',
         'price': formatRupiah(((priceVal * 1.1) / 100).round() * 100),
       },
       {
-        'name': 'Warung $name Barokah',
+        'name': 'Warung $foodName Barokah',
         'distance': '${(distVal + 0.9).toStringAsFixed(1)} km',
         'rating': '4.5',
         'price': formatRupiah(((priceVal * 0.95) / 100).round() * 100),
