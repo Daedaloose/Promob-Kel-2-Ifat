@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen>
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 250),
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 10,
                           fontWeight: isSelected
                               ? FontWeight.w800

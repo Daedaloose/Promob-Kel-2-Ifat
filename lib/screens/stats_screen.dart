@@ -269,7 +269,7 @@ class _StatsScreenState extends State<StatsScreen>
                         const Text(
                           'My Progress 📊',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
                             color: AppColors.textDark,
@@ -279,7 +279,7 @@ class _StatsScreenState extends State<StatsScreen>
                         const Text(
                           'Track your mindful journey',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textGrey,
@@ -313,7 +313,7 @@ class _StatsScreenState extends State<StatsScreen>
                                       child: Text(
                                         _periods[i],
                                         style: TextStyle(
-                                          fontFamily: 'Nunito',
+                                          fontFamily: 'Fredoka',
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
                                           color: isSelected
@@ -393,7 +393,7 @@ class _StatsScreenState extends State<StatsScreen>
                                   const Text(
                                     'Mood Trend',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
                                       color: AppColors.textDark,
@@ -403,7 +403,7 @@ class _StatsScreenState extends State<StatsScreen>
                                   const Text(
                                     'This week\'s emotional flow',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textGrey,
@@ -426,7 +426,7 @@ class _StatsScreenState extends State<StatsScreen>
                                         .map((d) => Text(
                                               d['day'],
                                               style: const TextStyle(
-                                                fontFamily: 'Nunito',
+                                                fontFamily: 'Fredoka',
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w700,
                                                 color: AppColors.textGrey,
@@ -456,7 +456,7 @@ class _StatsScreenState extends State<StatsScreen>
                                   const Text(
                                     'Mood Distribution',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
                                       color: AppColors.textDark,
@@ -504,7 +504,7 @@ class _StatsScreenState extends State<StatsScreen>
                                                     child: Text(
                                                       item['label'],
                                                       style: const TextStyle(
-                                                        fontFamily: 'Nunito',
+                                                        fontFamily: 'Fredoka',
                                                         fontSize: 12,
                                                         fontWeight: FontWeight.w600,
                                                         color: AppColors.textGrey,
@@ -514,7 +514,7 @@ class _StatsScreenState extends State<StatsScreen>
                                                   Text(
                                                     '${(item['pct'] * 100).toInt()}%',
                                                     style: const TextStyle(
-                                                      fontFamily: 'Nunito',
+                                                      fontFamily: 'Fredoka',
                                                       fontSize: 12,
                                                       fontWeight: FontWeight.w800,
                                                       color: AppColors.textDark,
@@ -550,7 +550,7 @@ class _StatsScreenState extends State<StatsScreen>
                                   const Text(
                                     'Activity Completion',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
                                       color: AppColors.textDark,
@@ -587,7 +587,7 @@ class _StatsScreenState extends State<StatsScreen>
                                                 child: Text(
                                                   activity['name'],
                                                   style: const TextStyle(
-                                                    fontFamily: 'Nunito',
+                                                    fontFamily: 'Fredoka',
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w700,
                                                     color: AppColors.textDark,
@@ -597,7 +597,7 @@ class _StatsScreenState extends State<StatsScreen>
                                               Text(
                                                 '${activity['sessions']}/${activity['total']}',
                                                 style: const TextStyle(
-                                                  fontFamily: 'Nunito',
+                                                  fontFamily: 'Fredoka',
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w800,
                                                   color: AppColors.textDark,
@@ -656,7 +656,7 @@ class _StatsScreenState extends State<StatsScreen>
             Text(
               value,
               style: const TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
                 color: AppColors.textDark,
@@ -666,7 +666,7 @@ class _StatsScreenState extends State<StatsScreen>
               label,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textGrey,
@@ -808,7 +808,7 @@ class DonutChartPainter extends CustomPainter {
       text: const TextSpan(
         text: '65%',
         style: TextStyle(
-          fontFamily: 'Nunito',
+          fontFamily: 'Fredoka',
           fontSize: 18,
           fontWeight: FontWeight.w900,
           color: AppColors.textDark,
@@ -827,7 +827,7 @@ class DonutChartPainter extends CustomPainter {
       text: const TextSpan(
         text: 'Positive',
         style: TextStyle(
-          fontFamily: 'Nunito',
+          fontFamily: 'Fredoka',
           fontSize: 10,
           fontWeight: FontWeight.w600,
           color: AppColors.textGrey,

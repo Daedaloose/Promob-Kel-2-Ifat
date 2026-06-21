@@ -197,7 +197,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
         const SnackBar(
           content: Text(
             'Kamera belum siap. Mohon tunggu sebentar...',
-            style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w700),
+            style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.w700),
           ),
           backgroundColor: AppColors.accentOrange,
         ),
@@ -491,20 +491,20 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
             Text('⚠️ ', style: TextStyle(fontSize: 20)),
             Text(
               'Pemindaian Gagal',
-              style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w800, color: AppColors.textDark),
+              style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.w800, color: AppColors.textDark),
             ),
           ],
         ),
         content: Text(
           '$reason. Pastikan wajah Anda menghadap ke kamera dengan stabil di dalam bingkai oval dengan pencahayaan yang cukup.',
-          style: const TextStyle(fontFamily: 'Nunito', fontSize: 13, height: 1.4, color: AppColors.textGrey),
+          style: const TextStyle(fontFamily: 'Fredoka', fontSize: 13, height: 1.4, color: AppColors.textGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
               'Coba Lagi',
-              style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w800, color: AppColors.sageDeep),
+              style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.w800, color: AppColors.sageDeep),
             ),
           ),
         ],
@@ -737,20 +737,20 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
             Text('⚠️ ', style: TextStyle(fontSize: 20)),
             Text(
               'Pemindaian Batal',
-              style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w800, color: AppColors.textDark),
+              style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.w800, color: AppColors.textDark),
             ),
           ],
         ),
         content: const Text(
           'Circadify rPPG gagal mendeteksi wajah Anda. Pastikan wajah Anda berada di dalam bingkai oval dengan pencahayaan yang cukup, posisi stabil, dan tidak menutupi kamera dengan tangan atau objek lain.',
-          style: TextStyle(fontFamily: 'Nunito', fontSize: 13, height: 1.4, color: AppColors.textGrey),
+          style: TextStyle(fontFamily: 'Fredoka', fontSize: 13, height: 1.4, color: AppColors.textGrey),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
               'Coba Lagi',
-              style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w800, color: AppColors.sageDeep),
+              style: TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.w800, color: AppColors.sageDeep),
             ),
           ),
         ],
@@ -810,7 +810,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                                 Text(
                                   'Deteksi Mood 📷',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.textDark,
@@ -819,7 +819,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                                 Text(
                                   'Baca ekspresi wajah dengan AI',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textGrey,
@@ -844,7 +844,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                                 Text(
                                   'rPPG',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -915,7 +915,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                         child: Text(
                           'Izin kamera ditolak. Silakan aktifkan izin kamera di setelan perangkat Anda.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'Nunito'),
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'Fredoka'),
                         ),
                       ),
                     )
@@ -940,7 +940,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                           Text(
                             '⏳ Menganalisis via Circadify AI API...',
                             style: TextStyle(
-                              fontFamily: 'Nunito',
+                              fontFamily: 'Fredoka',
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
@@ -950,7 +950,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                           Text(
                             'Memproses variabilitas warna kulit wajah (rPPG)',
                             style: TextStyle(
-                              fontFamily: 'Nunito',
+                              fontFamily: 'Fredoka',
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               color: Colors.white70,
@@ -1041,7 +1041,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                           Text(
                             'Menganalisis... $_scanProgress%',
                             style: const TextStyle(
-                              fontFamily: 'Nunito',
+                              fontFamily: 'Fredoka',
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -1075,7 +1075,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                         'Posisikan wajahmu di dalam bingkai',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.white70,
@@ -1105,7 +1105,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                               child: Text(
                                 _analysisWarning!,
                                 style: const TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
@@ -1147,7 +1147,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                       const Text(
                         'Sinyal rPPG Terdeteksi',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textDark,
@@ -1168,7 +1168,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                       Text(
                         '${72 + math.Random().nextInt(6)} BPM',
                         style: const TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           color: AppColors.sageDeep,
@@ -1218,7 +1218,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                 const Text(
                   'Cara Kerja Deteksi',
                   style: TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textDark,
@@ -1266,7 +1266,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                           ? 'Memproses API AI...'
                           : 'Sedang Memindai...',
                       style: const TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -1283,7 +1283,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                     Text(
                       'Mulai Deteksi Mood',
                       style: TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -1327,7 +1327,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                   Text(
                     'Mood Terdeteksi:',
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textGrey,
@@ -1337,7 +1337,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                   Text(
                     mood.label,
                     style: TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
                       color: mood.color,
@@ -1348,7 +1348,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                     mood.description,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textGrey,
@@ -1392,7 +1392,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                   const Text(
                     '✨ Rekomendasi untuk Kamu',
                     style: TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textDark,
@@ -1415,7 +1415,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                               child: Text(
                                 '${e.key + 1}',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w800,
                                   color: mood.color,
@@ -1428,7 +1428,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                             child: Text(
                               e.value,
                               style: const TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textDark,
@@ -1466,7 +1466,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                         child: Text(
                           '🔄 Scan Ulang',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textDark,
@@ -1490,7 +1490,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                         child: Text(
                           '💬 Chat AI',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -1551,7 +1551,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
           label,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: AppColors.textDark,
@@ -1577,7 +1577,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
               child: Text(
                 num,
                 style: const TextStyle(
-                  fontFamily: 'Nunito',
+                  fontFamily: 'Fredoka',
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: AppColors.sageDeep,
@@ -1592,7 +1592,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
             child: Text(
               text,
               style: const TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textGrey,
@@ -1624,7 +1624,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                 Text(
                   label,
                   style: const TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textGrey,
@@ -1633,7 +1633,7 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                 Text(
                   value,
                   style: const TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textDark,

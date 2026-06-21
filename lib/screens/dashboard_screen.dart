@@ -125,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   Text(
                                     'Hi ',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textGrey,
@@ -137,7 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               Text(
                                 name,
                                 style: const TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.textDark,
@@ -166,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       const Text(
                         'Good morning,',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textGrey,
@@ -176,7 +176,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       const Text(
                         "Welcome back,\nhow's your mind\ntoday?",
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 30,
                           fontWeight: FontWeight.w900,
                           color: AppColors.textDark,
@@ -202,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             Text(
                               'Search...',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 14,
                                 color: AppColors.textLight,
                               ),
@@ -392,7 +392,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         Text(
           title,
           style: const TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textDark,
@@ -402,7 +402,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           Text(
             action,
             style: const TextStyle(
-              fontFamily: 'Nunito',
+              fontFamily: 'Fredoka',
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.sageDark,
@@ -446,7 +446,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       child: Text(
                         act['title'],
                         style: const TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textDark,
@@ -480,7 +480,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: Text(
                     act['duration'],
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textDark,
@@ -544,7 +544,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     days[i],
                     style: TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight:
                       isToday ? FontWeight.w800 : FontWeight.w600,
@@ -572,7 +572,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         '5',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: AppColors.sageDeep,
@@ -581,7 +581,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         'Day streak 🔥',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textGrey,
@@ -604,7 +604,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         '73%',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: AppColors.accentOrange,
@@ -613,7 +613,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         'Weekly goal',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textGrey,
@@ -646,7 +646,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Text(
                   '✨ Daily Inspiration',
                   style: TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.sageMedium,
@@ -656,7 +656,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Text(
                   '"Peace begins\nwith a smile."',
                   style: TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -667,7 +667,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Text(
                   '— Mother Teresa',
                   style: TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,
@@ -732,7 +732,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textDark,
@@ -742,7 +742,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textGrey,
@@ -760,7 +760,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Text(
                       tag,
                       style: TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: accentColor,

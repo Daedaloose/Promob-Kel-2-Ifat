@@ -293,7 +293,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'Comfort Food 🍜',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.textDark,
@@ -302,7 +302,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'UMKM terdekat dari kosmu',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textGrey,
@@ -326,7 +326,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'LBS',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -344,7 +344,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                       const Text(
                         'Kamu lagi ngerasa...',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textGrey,
@@ -383,7 +383,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                   Text(
                                     mood['label'],
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 10,
                                       fontWeight: isSelected
                                           ? FontWeight.w800
@@ -455,7 +455,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                     child: Text(
                                       _categories[i],
                                       style: TextStyle(
-                                        fontFamily: 'Nunito',
+                                        fontFamily: 'Fredoka',
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
                                         color: isSelected
@@ -495,7 +495,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                       child: Text(
                                         'Pencarian: "$_currentSearchQuery"',
                                         style: const TextStyle(
-                                          fontFamily: 'Nunito',
+                                          fontFamily: 'Fredoka',
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.textDark,
@@ -575,7 +575,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                     ? 'Mencari lokasi kosmu...'
                     : 'Aktifkan lokasi untuk temukan UMKM terdekat',
                 style: const TextStyle(
-                  fontFamily: 'Nunito',
+                  fontFamily: 'Fredoka',
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.accentOrange,
@@ -593,7 +593,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                 child: const Text(
                   'Aktifkan',
                   style: TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -622,7 +622,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
             child: Text(
               'Jl. Manyar Kertoarjo V, Surabaya',
               style: TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textDark,
@@ -639,7 +639,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
             child: const Text(
               '📍 Aktif',
               style: TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -700,7 +700,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           food['name'],
                           style: const TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textDark,
@@ -710,7 +710,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           food['warung'],
                           style: const TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textGrey,
@@ -720,7 +720,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           food['desc'],
                           style: const TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textLight,
@@ -762,7 +762,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                   Text(
                     food['price'],
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                       color: AppColors.textDark,
@@ -797,7 +797,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               const Text(
                 'Mitra UMKM Terdekat (via Google Maps)',
                 style: TextStyle(
-                  fontFamily: 'Nunito',
+                  fontFamily: 'Fredoka',
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textDark,
@@ -807,7 +807,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               Text(
                 '3 Toko Ditemukan',
                 style: TextStyle(
-                  fontFamily: 'Nunito',
+                  fontFamily: 'Fredoka',
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textGrey,
@@ -845,7 +845,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                           Text(
                             store['name'] as String,
                             style: const TextStyle(
-                              fontFamily: 'Nunito',
+                              fontFamily: 'Fredoka',
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: AppColors.textDark,
@@ -859,7 +859,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                               Text(
                                 store['rating'] as String,
                                 style: const TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textGrey,
@@ -871,7 +871,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                               Text(
                                 store['distance'] as String,
                                 style: const TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textGrey,
@@ -888,7 +888,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           store['price'] as String,
                           style: const TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             color: AppColors.textDark,
@@ -910,7 +910,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'Peta',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -950,7 +950,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           'Jastip',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: AppColors.sageDeep,
@@ -979,7 +979,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           'GoFood',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF00AA13),
@@ -1008,7 +1008,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           'GrabFood',
                           style: TextStyle(
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF00B14F),
@@ -1090,7 +1090,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         content: Text(
           'Membuka Google Maps untuk "$storeName"... 📍',
           style: const TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1127,7 +1127,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: color,
@@ -1148,7 +1148,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
             'Belum ada rekomendasi\nuntuk mood & kategori ini',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Nunito',
+              fontFamily: 'Fredoka',
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: AppColors.textGrey,
@@ -1168,7 +1168,7 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               child: const Text(
                 'Lihat Semua',
                 style: TextStyle(
-                  fontFamily: 'Nunito',
+                  fontFamily: 'Fredoka',
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: AppColors.sageDeep,
@@ -1237,7 +1237,7 @@ class _OrderBottomSheet extends StatelessWidget {
                     Text(
                       food['name'],
                       style: const TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -1246,7 +1246,7 @@ class _OrderBottomSheet extends StatelessWidget {
                     Text(
                       food['warung'],
                       style: const TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 12,
                         color: AppColors.textGrey,
                       ),
@@ -1257,7 +1257,7 @@ class _OrderBottomSheet extends StatelessWidget {
               Text(
                 food['price'],
                 style: const TextStyle(
-                  fontFamily: 'Nunito',
+                  fontFamily: 'Fredoka',
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: AppColors.textDark,
@@ -1323,7 +1323,7 @@ class _OrderBottomSheet extends StatelessWidget {
                           Text(
                             'Tiba dalam ${food['time']}',
                             style: const TextStyle(
-                              fontFamily: 'Nunito',
+                              fontFamily: 'Fredoka',
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: AppColors.textDark,
@@ -1370,7 +1370,7 @@ class _OrderBottomSheet extends StatelessWidget {
                 child: Text(
                   'Pesan via $method  →',
                   style: const TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -1401,7 +1401,7 @@ class _OrderBottomSheet extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: color,
@@ -1439,7 +1439,7 @@ class _OrderBottomSheet extends StatelessWidget {
         content: Text(
           'Membuka $method untuk mencari "$foodName"... 🛵',
           style: const TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1508,7 +1508,7 @@ class _MapMarker extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              fontFamily: 'Nunito',
+              fontFamily: 'Fredoka',
               fontSize: 9,
               fontWeight: FontWeight.w700,
               color: Colors.white,

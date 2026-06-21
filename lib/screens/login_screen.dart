@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
@@ -76,13 +77,11 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (e) {
       if (mounted) {
-        String errorMsg = 'Gagal masuk. Silakan cek email & password Anda.';
-        if (e.toString().contains('user-not-found') || e.toString().contains('invalid-credential')) {
-          errorMsg = 'Email atau password salah.';
-        } else if (e.toString().contains('wrong-password')) {
-          errorMsg = 'Password salah.';
-        } else if (e.toString().contains('invalid-email')) {
-          errorMsg = 'Format email tidak valid.';
+        String errorMsg = 'Gagal masuk. Silakan coba kembali.';
+        if (e is FirebaseAuthException) {
+          errorMsg = e.message ?? e.toString();
+        } else {
+          errorMsg = e.toString();
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -177,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 const Text(
                                   'Welcome back! 👋',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textGrey,
@@ -187,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 const Text(
                                   'Sign In to Your\nPeaceful Mind',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 30,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.textDark,
@@ -230,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen>
                             const Text(
                               'Email Address',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -251,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen>
                             const Text(
                               'Password',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -285,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen>
                               child: Text(
                                 'Forgot Password?',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.sageDark,
@@ -319,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       : const Text(
                                     'Sign In',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 17,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white,
@@ -348,7 +347,7 @@ class _LoginScreenState extends State<LoginScreen>
                             child: Text(
                               'or continue with',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textGrey,
@@ -418,7 +417,7 @@ class _LoginScreenState extends State<LoginScreen>
                             text: TextSpan(
                               text: "Don't have an account? ",
                               style: const TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.textGrey,
@@ -427,7 +426,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 TextSpan(
                                   text: 'Sign Up',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.sageDeep,
@@ -475,7 +474,7 @@ class _LoginScreenState extends State<LoginScreen>
         obscureText: obscureText,
         keyboardType: keyboardType,
         style: const TextStyle(
-          fontFamily: 'Nunito',
+          fontFamily: 'Fredoka',
           fontSize: 15,
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
@@ -483,7 +482,7 @@ class _LoginScreenState extends State<LoginScreen>
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontSize: 15,
             color: AppColors.textLight,
           ),
@@ -537,7 +536,7 @@ class _LoginScreenState extends State<LoginScreen>
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Nunito',
+              fontFamily: 'Fredoka',
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: textColor,

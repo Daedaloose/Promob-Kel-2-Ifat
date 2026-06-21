@@ -330,7 +330,7 @@ class _JournalScreenState extends State<JournalScreen>
                     const Text(
                       'Tulis Jurnal Baru 📓',
                       style: TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
                         color: AppColors.textDark,
@@ -340,7 +340,7 @@ class _JournalScreenState extends State<JournalScreen>
                     TextField(
                       controller: titleController,
                       style: const TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -364,7 +364,7 @@ class _JournalScreenState extends State<JournalScreen>
                       controller: contentController,
                       maxLines: 5,
                       style: const TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -387,7 +387,7 @@ class _JournalScreenState extends State<JournalScreen>
                     const Text(
                       'Bagaimana perasaanmu?',
                       style: TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -428,7 +428,7 @@ class _JournalScreenState extends State<JournalScreen>
                                 Text(
                                   mood,
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: isSelected
@@ -446,7 +446,7 @@ class _JournalScreenState extends State<JournalScreen>
                     const Text(
                       'Pilih Kategori/Tag',
                       style: TextStyle(
-                        fontFamily: 'Nunito',
+                        fontFamily: 'Fredoka',
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -482,7 +482,7 @@ class _JournalScreenState extends State<JournalScreen>
                               child: Text(
                                 tag,
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: isSelected
@@ -553,7 +553,7 @@ class _JournalScreenState extends State<JournalScreen>
                             : const Text(
                                 'Simpan Jurnal',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
@@ -602,7 +602,7 @@ class _JournalScreenState extends State<JournalScreen>
                                   const Text(
                                     'My Journal 📓',
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 26,
                                       fontWeight: FontWeight.w900,
                                       color: AppColors.textDark,
@@ -612,7 +612,7 @@ class _JournalScreenState extends State<JournalScreen>
                                   Text(
                                     '${_entries.length} entries total',
                                     style: const TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.textGrey,
@@ -665,7 +665,7 @@ class _JournalScreenState extends State<JournalScreen>
                                   child: Text(
                                     _filters[index],
                                     style: TextStyle(
-                                      fontFamily: 'Nunito',
+                                      fontFamily: 'Fredoka',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                       color: isSelected
@@ -705,7 +705,7 @@ class _JournalScreenState extends State<JournalScreen>
                               child: Text(
                                 'Tidak ada jurnal yang sesuai filter.',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   color: AppColors.textGrey,
                                 ),
                               ),
@@ -767,7 +767,7 @@ class _JournalScreenState extends State<JournalScreen>
                   child: Text(
                     entry['date'],
                     style: const TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textGrey,
@@ -795,7 +795,7 @@ class _JournalScreenState extends State<JournalScreen>
             Text(
               entry['title'],
               style: const TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textDark,
@@ -808,7 +808,7 @@ class _JournalScreenState extends State<JournalScreen>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textGrey,
@@ -831,7 +831,7 @@ class _JournalScreenState extends State<JournalScreen>
                   child: Text(
                     entry['tag'],
                     style: TextStyle(
-                      fontFamily: 'Nunito',
+                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: entry['tagTextColor'],
@@ -842,7 +842,7 @@ class _JournalScreenState extends State<JournalScreen>
                 Text(
                   entry['wordCount'],
                   style: const TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,
@@ -852,7 +852,7 @@ class _JournalScreenState extends State<JournalScreen>
                 Text(
                   entry['time'],
                   style: const TextStyle(
-                    fontFamily: 'Nunito',
+                    fontFamily: 'Fredoka',
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,

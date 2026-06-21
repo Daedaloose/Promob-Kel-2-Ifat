@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 
@@ -93,12 +94,10 @@ class _SignUpScreenState extends State<SignUpScreen>
     } catch (e) {
       if (mounted) {
         String errorMsg = 'Gagal mendaftar. Silakan coba kembali.';
-        if (e.toString().contains('email-already-in-use')) {
-          errorMsg = 'Email sudah terdaftar. Gunakan email lain.';
-        } else if (e.toString().contains('invalid-email')) {
-          errorMsg = 'Format email tidak valid.';
-        } else if (e.toString().contains('weak-password')) {
-          errorMsg = 'Password terlalu lemah.';
+        if (e is FirebaseAuthException) {
+          errorMsg = e.message ?? e.toString();
+        } else {
+          errorMsg = e.toString();
         }
         _showError(errorMsg);
       }
@@ -114,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w700),
+          style: const TextStyle(fontFamily: 'Fredoka', fontWeight: FontWeight.w700),
         ),
         backgroundColor: AppColors.accentOrange,
       ),
@@ -188,7 +187,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                       const Text(
                         'Create Account ✨',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 30,
                           fontWeight: FontWeight.w900,
                           color: AppColors.textDark,
@@ -199,7 +198,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                       const Text(
                         'Mulai perjalanan damaimu bersama kami',
                         style: TextStyle(
-                          fontFamily: 'Nunito',
+                          fontFamily: 'Fredoka',
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textGrey,
@@ -229,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                             const Text(
                               'Full Name',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -249,7 +248,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                             const Text(
                               'Email Address',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -270,7 +269,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                             const Text(
                               'Password',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -303,7 +302,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                             const Text(
                               'Confirm Password',
                               style: TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -357,7 +356,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                                       : const Text(
                                           'Sign Up',
                                           style: TextStyle(
-                                            fontFamily: 'Nunito',
+                                            fontFamily: 'Fredoka',
                                             fontSize: 17,
                                             fontWeight: FontWeight.w800,
                                             color: Colors.white,
@@ -380,7 +379,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                             text: TextSpan(
                               text: "Already have an account? ",
                               style: const TextStyle(
-                                fontFamily: 'Nunito',
+                                fontFamily: 'Fredoka',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.textGrey,
@@ -389,7 +388,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 TextSpan(
                                   text: 'Sign In',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.sageDeep,
@@ -437,7 +436,7 @@ class _SignUpScreenState extends State<SignUpScreen>
         obscureText: obscureText,
         keyboardType: keyboardType,
         style: const TextStyle(
-          fontFamily: 'Nunito',
+          fontFamily: 'Fredoka',
           fontSize: 15,
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
@@ -445,7 +444,7 @@ class _SignUpScreenState extends State<SignUpScreen>
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            fontFamily: 'Nunito',
+            fontFamily: 'Fredoka',
             fontSize: 15,
             color: AppColors.textLight,
           ),

@@ -147,7 +147,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               TextSpan(
                                 text: 'Step Into\nYour Peaceful\n',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 38,
                                   fontWeight: FontWeight.w900,
                                   color: AppColors.textDark,
@@ -175,7 +175,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               child: const Text(
                                 'Mind',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 38,
                                   fontWeight: FontWeight.w900,
                                   color: AppColors.textDark,
@@ -188,7 +188,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               child: Text(
                                 'Breathe deeply, relax fully, and find calm.',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                   color: AppColors.textGrey,
@@ -239,7 +239,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 child: Text(
                                   'Get Started',
                                   style: TextStyle(
-                                    fontFamily: 'Nunito',
+                                    fontFamily: 'Fredoka',
                                     fontSize: 17,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -252,7 +252,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               child: const Text(
                                 '>>>',
                                 style: TextStyle(
-                                  fontFamily: 'Nunito',
+                                  fontFamily: 'Fredoka',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
@@ -315,7 +315,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               'Start Your\nMindful Journey',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Nunito',
+                fontFamily: 'Fredoka',
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textDark,

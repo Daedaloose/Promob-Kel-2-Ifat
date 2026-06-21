@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Primary sage green palette (from reference)
@@ -34,9 +35,9 @@ class AppColors {
 }
 
 class AppTextStyles {
-  static const String fontFamily = 'Nunito';
+  static final String fontFamily = GoogleFonts.fredoka().fontFamily!;
 
-  static const TextStyle heading1 = TextStyle(
+  static final TextStyle heading1 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 36,
     fontWeight: FontWeight.w900,
@@ -45,7 +46,7 @@ class AppTextStyles {
     letterSpacing: -0.5,
   );
 
-  static const TextStyle heading2 = TextStyle(
+  static final TextStyle heading2 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.w800,
@@ -53,7 +54,7 @@ class AppTextStyles {
     height: 1.2,
   );
 
-  static const TextStyle heading3 = TextStyle(
+  static final TextStyle heading3 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 22,
     fontWeight: FontWeight.w700,
@@ -61,7 +62,7 @@ class AppTextStyles {
     height: 1.3,
   );
 
-  static const TextStyle body = TextStyle(
+  static final TextStyle body = TextStyle(
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w400,
@@ -69,21 +70,21 @@ class AppTextStyles {
     height: 1.5,
   );
 
-  static const TextStyle bodyBold = TextStyle(
+  static final TextStyle bodyBold = TextStyle(
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w700,
     color: AppColors.textDark,
   );
 
-  static const TextStyle caption = TextStyle(
+  static final TextStyle caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textLight,
   );
 
-  static const TextStyle button = TextStyle(
+  static final TextStyle button = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w800,

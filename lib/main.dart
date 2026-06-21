@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:peaceful_mind/screens/welcome_screen.dart';
 import 'package:peaceful_mind/screens/login_screen.dart';
 import 'package:peaceful_mind/screens/signup_screen.dart';
@@ -35,7 +36,7 @@ class PeacefulMindApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: mode,
       theme: ThemeData(
-        fontFamily: 'Nunito',
+        fontFamily: GoogleFonts.fredoka().fontFamily,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB5D5C5),
           primary: const Color(0xFFB5D5C5),
@@ -45,6 +46,7 @@ class PeacefulMindApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
+        fontFamily: GoogleFonts.fredoka().fontFamily,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB5D5C5),
