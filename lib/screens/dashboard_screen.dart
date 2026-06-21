@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import 'package:peaceful_mind/screens/ai_chat_screen.dart';
 import 'package:peaceful_mind/screens/mood_detection_screen.dart';
 import 'package:peaceful_mind/screens/comfort_food_screen.dart';
+import 'package:peaceful_mind/screens/activity_detail_screen.dart';
 import '../services/mood_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -581,82 +582,92 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildActivityCard(Map<String, dynamic> act) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 14),
-      decoration: BoxDecoration(
-        color: act['color'],
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -20,
-            bottom: -20,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ActivityDetailScreen(activity: act),
+          ),
+        );
+      },
+      child: Container(
+        width: 160,
+        margin: const EdgeInsets.only(right: 14),
+        decoration: BoxDecoration(
+          color: act['color'],
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -20,
+              bottom: -20,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        act['title'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textDark,
-                          height: 1.3,
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          act['title'],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textDark,
+                            height: 1.3,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(8),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.arrow_outward_rounded,
+                            size: 16, color: AppColors.textDark),
                       ),
-                      child: const Icon(Icons.arrow_outward_rounded,
-                          size: 16, color: AppColors.textDark),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Text(act['emoji'],
-                    style: const TextStyle(fontSize: 46)),
-                const SizedBox(height: 8),
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(20),
+                    ],
                   ),
-                  child: Text(
-                    act['duration'],
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textDark,
+                  const Spacer(),
+                  Text(act['emoji'],
+                      style: const TextStyle(fontSize: 46)),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      act['duration'],
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
