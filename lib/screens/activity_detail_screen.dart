@@ -633,7 +633,7 @@ class _MindieComicPainter extends CustomPainter {
         ..style = PaintingStyle.stroke;
 
       final bookRect = RRect.fromRectAndRadius(
-        Rect.fromLTB(cx - 85, cy + 2 - hoverY, cx - 45, cy + 30 - hoverY),
+        Rect.fromLTRB(cx - 85, cy + 2 - hoverY, cx - 45, cy + 30 - hoverY),
         const Radius.circular(4),
       );
       canvas.drawRRect(bookRect, bookPaint);
@@ -763,7 +763,7 @@ class _MindieComicPainter extends CustomPainter {
       canvas.restore();
 
       // Gelembung "Zzz..." tidur
-      final double zOffset = (progress * 15.0);
+      final double zOffset = (animVal * 15.0);
       final double zSize = 6.0 + animVal * 4.0;
       final zStyle = TextStyle(
         fontSize: zSize,
