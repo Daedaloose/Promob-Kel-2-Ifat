@@ -903,7 +903,11 @@ class _MoodDetectionScreenState extends State<MoodDetectionScreen>
                   // Camera preview
                   if (_isCameraInitialized && _cameraController != null)
                     Center(
-                      child: CameraPreview(_cameraController!),
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: CameraPreview(_cameraController!),
+                      ),
                     )
                   else if (_isCameraPermissionDenied)
                     const Center(
