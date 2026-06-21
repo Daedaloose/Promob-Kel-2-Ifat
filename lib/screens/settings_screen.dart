@@ -330,7 +330,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     Text(
                                       name,
                                       style: const TextStyle(
-                                        fontFamily: 'Fredoka',
                                         fontSize: 18,
                                         fontWeight: FontWeight.w900,
                                         color: AppColors.textDark,
@@ -340,7 +339,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     Text(
                                       email,
                                       style: const TextStyle(
-                                        fontFamily: 'Fredoka',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.textGrey,
@@ -359,7 +357,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                                       child: const Text(
                                         '✨ Premium Member',
                                         style: TextStyle(
-                                          fontFamily: 'Fredoka',
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
@@ -543,7 +540,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                             child: const Text(
                               'PRO',
                               style: TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -595,7 +591,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                               Text(
                                 'Log Out',
                                 style: TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFFE85858),
@@ -613,7 +608,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                         child: Text(
                           'Peaceful Mind v1.0.0',
                           style: TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textLight,
@@ -646,7 +640,6 @@ class _SettingsScreenState extends State<SettingsScreen>
             Text(
               value,
               style: const TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 color: AppColors.textDark,
@@ -656,7 +649,6 @@ class _SettingsScreenState extends State<SettingsScreen>
               label,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textGrey,
@@ -673,7 +665,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     return Text(
       title,
       style: const TextStyle(
-        fontFamily: 'Fredoka',
         fontSize: 15,
         fontWeight: FontWeight.w800,
         color: AppColors.textGrey,
@@ -729,7 +720,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Text(
                   title,
                   style: const TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textDark,
@@ -738,7 +728,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textGrey,
@@ -790,7 +779,6 @@ class _SettingsScreenState extends State<SettingsScreen>
             child: Text(
               title,
               style: const TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textDark,
@@ -803,7 +791,6 @@ class _SettingsScreenState extends State<SettingsScreen>
             Text(
               trailing,
               style: const TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textGrey,

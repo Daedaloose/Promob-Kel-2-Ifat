@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math' as math;
 
 class ComfortFoodScreen extends StatefulWidget {
   final String? searchFood;
@@ -22,6 +26,11 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   int _selectedCategory = 0;
   String? _selectedFood;
   String? _currentSearchQuery;
+  
+  Position? _currentPosition;
+  String _currentAddress = 'Mencari alamat...';
+  List<Map<String, dynamic>> _realStores = [];
+  bool _isFetchingStores = false;
 
   final List<Map<String, dynamic>> _moodTriggers = [
     {'emoji': '😰', 'label': 'Cemas', 'color': Color(0xFFE8834A)},
@@ -231,6 +240,12 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
+
+    if (widget.searchFood != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _requestLocation();
+      });
+    }
   }
 
   @override
@@ -240,16 +255,164 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
     super.dispose();
   }
 
-  void _requestLocation() async {
-    setState(() => _isLoadingLocation = true);
-    _locationController.repeat();
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (!mounted) return;
-    _locationController.stop();
+  Future<void> _requestLocation() async {
     setState(() {
-      _isLoadingLocation = false;
-      _locationGranted = true;
+      _isLoadingLocation = true;
+      _locationGranted = false;
     });
+    _locationController.repeat();
+
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _showLocationError('Layanan lokasi tidak aktif. Silakan aktifkan GPS.');
+        _stopLocationLoading();
+        return;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _showLocationError('Izin lokasi ditolak.');
+          _stopLocationLoading();
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _showLocationError('Izin lokasi ditolak permanen. Aktifkan lewat pengaturan HP.');
+        _stopLocationLoading();
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 10),
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _currentPosition = position;
+        _locationGranted = true;
+      });
+
+      await _fetchNearbyRestaurantsFromOSM(position.latitude, position.longitude);
+
+    } catch (e) {
+      print('Error requestLocation: $e');
+      _showLocationError('Gagal mendeteksi lokasi: ${e.toString()}');
+    } finally {
+      _stopLocationLoading();
+    }
+  }
+
+  void _stopLocationLoading() {
+    if (mounted) {
+      _locationController.stop();
+      setState(() {
+        _isLoadingLocation = false;
+      });
+    }
+  }
+
+  void _showLocationError(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppColors.accentOrange,
+        ),
+      );
+    }
+  }
+
+  Future<void> _fetchNearbyRestaurantsFromOSM(double lat, double lng) async {
+    setState(() => _isFetchingStores = true);
+    
+    // Reverse geocoding using OpenStreetMap Nominatim API
+    try {
+      final geoUri = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1');
+      final geoResponse = await http.get(geoUri, headers: {
+        'User-Agent': 'PeacefulMindApp/1.0',
+      });
+      if (geoResponse.statusCode == 200) {
+        final geoData = json.decode(geoResponse.body);
+        final addressStr = geoData['display_name'] ?? 'Lokasi Terdeteksi';
+        final parts = addressStr.split(',');
+        final shortAddress = parts.length > 3 ? '${parts[0]}, ${parts[1]}, ${parts[2]}' : addressStr;
+        
+        if (mounted) {
+          setState(() {
+            _currentAddress = shortAddress;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error Nominatim: $e');
+      if (mounted) {
+        setState(() {
+          _currentAddress = 'Koordinat: ${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}';
+        });
+      }
+    }
+
+    // Fetch restaurants, cafes, and fast food near current position
+    try {
+      final overpassQuery = '[out:json];node(around:2000,$lat,$lng)[amenity~"restaurant|cafe|fast_food"];out;';
+      final overpassUri = Uri.parse('https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(overpassQuery)}');
+      
+      final response = await http.get(overpassUri).timeout(const Duration(seconds: 15));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> elements = data['elements'] ?? [];
+        final List<Map<String, dynamic>> parsedStores = [];
+        
+        for (final el in elements) {
+          final double storeLat = el['lat'];
+          final double storeLng = el['lon'];
+          final tags = el['tags'] ?? {};
+          final String storeName = tags['name'] ?? 'Warung Makan Terdekat';
+          
+          final double distanceInMeters = Geolocator.distanceBetween(lat, lng, storeLat, storeLng);
+          final double distanceInKm = distanceInMeters / 1000.0;
+          
+          // Generate realistic price based on item
+          final int randomPriceFactor = (el['id'] as int).abs() % 15;
+          final int priceVal = 15000 + (randomPriceFactor * 1000);
+          
+          parsedStores.add({
+            'name': storeName,
+            'distance': '${distanceInKm.toStringAsFixed(1)} km',
+            'distanceValue': distanceInKm,
+            'rating': (4.2 + ((storeLat * 1000 + storeLng * 1000).abs() % 0.7)).toStringAsFixed(1),
+            'price': 'Rp ${priceVal.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+          });
+        }
+        
+        parsedStores.sort((a, b) => (a['distanceValue'] as double).compareTo(b['distanceValue'] as double));
+        
+        if (mounted) {
+          setState(() {
+            _realStores = parsedStores;
+            _isFetchingStores = false;
+          });
+        }
+      } else {
+        throw Exception('API returned status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error OSM Overpass: $e');
+      if (mounted) {
+        setState(() {
+          _isFetchingStores = false;
+        });
+      }
+    }
   }
 
   @override
@@ -293,7 +456,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'Comfort Food 🍜',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.textDark,
@@ -302,7 +464,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'UMKM terdekat dari kosmu',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textGrey,
@@ -326,7 +487,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'LBS',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -344,7 +504,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                       const Text(
                         'Kamu lagi ngerasa...',
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textGrey,
@@ -383,7 +542,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                   Text(
                                     mood['label'],
                                     style: TextStyle(
-                                      fontFamily: 'Fredoka',
                                       fontSize: 10,
                                       fontWeight: isSelected
                                           ? FontWeight.w800
@@ -455,7 +613,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                     child: Text(
                                       _categories[i],
                                       style: TextStyle(
-                                        fontFamily: 'Fredoka',
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
                                         color: isSelected
@@ -495,7 +652,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                       child: Text(
                                         'Pencarian: "$_currentSearchQuery"',
                                         style: const TextStyle(
-                                          fontFamily: 'Fredoka',
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.textDark,
@@ -575,7 +731,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                     ? 'Mencari lokasi kosmu...'
                     : 'Aktifkan lokasi untuk temukan UMKM terdekat',
                 style: const TextStyle(
-                  fontFamily: 'Fredoka',
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.accentOrange,
@@ -593,7 +748,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                 child: const Text(
                   'Aktifkan',
                   style: TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -618,11 +772,10 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
           const Icon(Icons.location_on_rounded,
               color: AppColors.sageDeep, size: 18),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Jl. Manyar Kertoarjo V, Surabaya',
-              style: TextStyle(
-                fontFamily: 'Fredoka',
+              _isFetchingStores ? 'Mengambil data Peta...' : _currentAddress,
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textDark,
@@ -639,7 +792,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
             child: const Text(
               '📍 Aktif',
               style: TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -700,7 +852,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           food['name'],
                           style: const TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textDark,
@@ -710,7 +861,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           food['warung'],
                           style: const TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textGrey,
@@ -720,7 +870,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           food['desc'],
                           style: const TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textLight,
@@ -762,7 +911,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                   Text(
                     food['price'],
                     style: const TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
                       color: AppColors.textDark,
@@ -797,7 +945,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               const Text(
                 'Mitra UMKM Terdekat (via Google Maps)',
                 style: TextStyle(
-                  fontFamily: 'Fredoka',
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textDark,
@@ -807,7 +954,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               Text(
                 '3 Toko Ditemukan',
                 style: TextStyle(
-                  fontFamily: 'Fredoka',
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textGrey,
@@ -845,7 +991,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                           Text(
                             store['name'] as String,
                             style: const TextStyle(
-                              fontFamily: 'Fredoka',
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: AppColors.textDark,
@@ -859,7 +1004,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                               Text(
                                 store['rating'] as String,
                                 style: const TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textGrey,
@@ -871,7 +1015,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                               Text(
                                 store['distance'] as String,
                                 style: const TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textGrey,
@@ -888,7 +1031,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           store['price'] as String,
                           style: const TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             color: AppColors.textDark,
@@ -910,7 +1052,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                                 Text(
                                   'Peta',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -950,7 +1091,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           'Jastip',
                           style: TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: AppColors.sageDeep,
@@ -979,7 +1119,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           'GoFood',
                           style: TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF00AA13),
@@ -1008,7 +1147,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
                         Text(
                           'GrabFood',
                           style: TextStyle(
-                            fontFamily: 'Fredoka',
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: Color(0xFF00B14F),
@@ -1027,6 +1165,20 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
   }
 
   List<Map<String, dynamic>> _getNearbyStores(Map<String, dynamic> food) {
+    if (_locationGranted && _realStores.isNotEmpty) {
+      final List<Map<String, dynamic>> results = [];
+      // Take up to 3 closest restaurants
+      for (int i = 0; i < math.min(3, _realStores.length); i++) {
+        results.add({
+          'name': _realStores[i]['name'],
+          'distance': _realStores[i]['distance'],
+          'rating': _realStores[i]['rating'],
+          'price': _realStores[i]['price'],
+        });
+      }
+      return results;
+    }
+
     final String name = food['name'] as String;
     final String primaryWarung = food['warung'] as String;
     final String priceStr = food['price'] as String;
@@ -1090,7 +1242,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         content: Text(
           'Membuka Google Maps untuk "$storeName"... 📍',
           style: const TextStyle(
-            fontFamily: 'Fredoka',
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1127,7 +1278,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Fredoka',
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: color,
@@ -1148,7 +1298,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
             'Belum ada rekomendasi\nuntuk mood & kategori ini',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Fredoka',
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: AppColors.textGrey,
@@ -1168,7 +1317,6 @@ class _ComfortFoodScreenState extends State<ComfortFoodScreen>
               child: const Text(
                 'Lihat Semua',
                 style: TextStyle(
-                  fontFamily: 'Fredoka',
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: AppColors.sageDeep,
@@ -1237,7 +1385,6 @@ class _OrderBottomSheet extends StatelessWidget {
                     Text(
                       food['name'],
                       style: const TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -1246,7 +1393,6 @@ class _OrderBottomSheet extends StatelessWidget {
                     Text(
                       food['warung'],
                       style: const TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 12,
                         color: AppColors.textGrey,
                       ),
@@ -1257,7 +1403,6 @@ class _OrderBottomSheet extends StatelessWidget {
               Text(
                 food['price'],
                 style: const TextStyle(
-                  fontFamily: 'Fredoka',
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: AppColors.textDark,
@@ -1323,7 +1468,6 @@ class _OrderBottomSheet extends StatelessWidget {
                           Text(
                             'Tiba dalam ${food['time']}',
                             style: const TextStyle(
-                              fontFamily: 'Fredoka',
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: AppColors.textDark,
@@ -1370,7 +1514,6 @@ class _OrderBottomSheet extends StatelessWidget {
                 child: Text(
                   'Pesan via $method  →',
                   style: const TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -1401,7 +1544,6 @@ class _OrderBottomSheet extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: color,
@@ -1439,7 +1581,6 @@ class _OrderBottomSheet extends StatelessWidget {
         content: Text(
           'Membuka $method untuk mencari "$foodName"... 🛵',
           style: const TextStyle(
-            fontFamily: 'Fredoka',
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1508,7 +1649,6 @@ class _MapMarker extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              fontFamily: 'Fredoka',
               fontSize: 9,
               fontWeight: FontWeight.w700,
               color: Colors.white,

@@ -142,11 +142,7 @@ class _JournalScreenState extends State<JournalScreen>
     
     setState(() {
       _entries.clear();
-      if (parsedEntries.isNotEmpty) {
-        _entries.addAll(parsedEntries);
-      } else {
-        _entries.addAll(_defaultMockEntries);
-      }
+      _entries.addAll(parsedEntries);
       _isLoading = false;
     });
   }
@@ -330,7 +326,6 @@ class _JournalScreenState extends State<JournalScreen>
                     const Text(
                       'Tulis Jurnal Baru 📓',
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
                         color: AppColors.textDark,
@@ -340,7 +335,6 @@ class _JournalScreenState extends State<JournalScreen>
                     TextField(
                       controller: titleController,
                       style: const TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -364,7 +358,6 @@ class _JournalScreenState extends State<JournalScreen>
                       controller: contentController,
                       maxLines: 5,
                       style: const TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -387,7 +380,6 @@ class _JournalScreenState extends State<JournalScreen>
                     const Text(
                       'Bagaimana perasaanmu?',
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -428,7 +420,6 @@ class _JournalScreenState extends State<JournalScreen>
                                 Text(
                                   mood,
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: isSelected
@@ -446,7 +437,6 @@ class _JournalScreenState extends State<JournalScreen>
                     const Text(
                       'Pilih Kategori/Tag',
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -482,7 +472,6 @@ class _JournalScreenState extends State<JournalScreen>
                               child: Text(
                                 tag,
                                 style: TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: isSelected
@@ -553,7 +542,6 @@ class _JournalScreenState extends State<JournalScreen>
                             : const Text(
                                 'Simpan Jurnal',
                                 style: TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
@@ -602,7 +590,6 @@ class _JournalScreenState extends State<JournalScreen>
                                   const Text(
                                     'My Journal 📓',
                                     style: TextStyle(
-                                      fontFamily: 'Fredoka',
                                       fontSize: 26,
                                       fontWeight: FontWeight.w900,
                                       color: AppColors.textDark,
@@ -612,7 +599,6 @@ class _JournalScreenState extends State<JournalScreen>
                                   Text(
                                     '${_entries.length} entries total',
                                     style: const TextStyle(
-                                      fontFamily: 'Fredoka',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.textGrey,
@@ -665,7 +651,6 @@ class _JournalScreenState extends State<JournalScreen>
                                   child: Text(
                                     _filters[index],
                                     style: TextStyle(
-                                      fontFamily: 'Fredoka',
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                       color: isSelected
@@ -700,16 +685,49 @@ class _JournalScreenState extends State<JournalScreen>
                             color: AppColors.sageDeep,
                           ),
                         )
-                      : filtered.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'Tidak ada jurnal yang sesuai filter.',
-                                style: TextStyle(
-                                  fontFamily: 'Fredoka',
-                                  color: AppColors.textGrey,
-                                ),
+                      : _entries.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    '📓',
+                                    style: TextStyle(fontSize: 60),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Jurnal Anda Masih Kosong',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 40),
+                                    child: Text(
+                                      'Mulai catat perjalanan pikiran dan perasaan Anda hari ini dengan menekan tombol + di bawah.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textGrey,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
+                          : filtered.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'Tidak ada jurnal yang sesuai filter.',
+                                    style: TextStyle(
+                                      color: AppColors.textGrey,
+                                    ),
+                                  ),
+                                )
                           : ListView.builder(
                               padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
                               itemCount: filtered.length,
@@ -767,7 +785,6 @@ class _JournalScreenState extends State<JournalScreen>
                   child: Text(
                     entry['date'],
                     style: const TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textGrey,
@@ -795,7 +812,6 @@ class _JournalScreenState extends State<JournalScreen>
             Text(
               entry['title'],
               style: const TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textDark,
@@ -808,7 +824,6 @@ class _JournalScreenState extends State<JournalScreen>
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontFamily: 'Fredoka',
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textGrey,
@@ -831,7 +846,6 @@ class _JournalScreenState extends State<JournalScreen>
                   child: Text(
                     entry['tag'],
                     style: TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: entry['tagTextColor'],
@@ -842,7 +856,6 @@ class _JournalScreenState extends State<JournalScreen>
                 Text(
                   entry['wordCount'],
                   style: const TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,
@@ -852,7 +865,6 @@ class _JournalScreenState extends State<JournalScreen>
                 Text(
                   entry['time'],
                   style: const TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,

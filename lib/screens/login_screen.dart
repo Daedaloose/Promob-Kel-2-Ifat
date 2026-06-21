@@ -176,7 +176,6 @@ class _LoginScreenState extends State<LoginScreen>
                                 const Text(
                                   'Welcome back! 👋',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textGrey,
@@ -186,7 +185,6 @@ class _LoginScreenState extends State<LoginScreen>
                                 const Text(
                                   'Sign In to Your\nPeaceful Mind',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 30,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.textDark,
@@ -229,7 +227,6 @@ class _LoginScreenState extends State<LoginScreen>
                             const Text(
                               'Email Address',
                               style: TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -250,7 +247,6 @@ class _LoginScreenState extends State<LoginScreen>
                             const Text(
                               'Password',
                               style: TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textGrey,
@@ -284,7 +280,6 @@ class _LoginScreenState extends State<LoginScreen>
                               child: Text(
                                 'Forgot Password?',
                                 style: TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.sageDark,
@@ -318,7 +313,6 @@ class _LoginScreenState extends State<LoginScreen>
                                       : const Text(
                                     'Sign In',
                                     style: TextStyle(
-                                      fontFamily: 'Fredoka',
                                       fontSize: 17,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white,
@@ -347,7 +341,6 @@ class _LoginScreenState extends State<LoginScreen>
                             child: Text(
                               'or continue with',
                               style: TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textGrey,
@@ -413,11 +406,10 @@ class _LoginScreenState extends State<LoginScreen>
                       Center(
                         child: GestureDetector(
                           onTap: () => Navigator.pushNamed(context, '/signup'),
-                          child: RichText(
-                            text: TextSpan(
+                          child: const Text.rich(
+                            TextSpan(
                               text: "Don't have an account? ",
-                              style: const TextStyle(
-                                fontFamily: 'Fredoka',
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.textGrey,
@@ -426,7 +418,6 @@ class _LoginScreenState extends State<LoginScreen>
                                 TextSpan(
                                   text: 'Sign Up',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.sageDeep,
@@ -474,7 +465,6 @@ class _LoginScreenState extends State<LoginScreen>
         obscureText: obscureText,
         keyboardType: keyboardType,
         style: const TextStyle(
-          fontFamily: 'Fredoka',
           fontSize: 15,
           fontWeight: FontWeight.w600,
           color: AppColors.textDark,
@@ -482,7 +472,6 @@ class _LoginScreenState extends State<LoginScreen>
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
-            fontFamily: 'Fredoka',
             fontSize: 15,
             color: AppColors.textLight,
           ),
@@ -536,7 +525,6 @@ class _LoginScreenState extends State<LoginScreen>
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Fredoka',
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: textColor,

@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import 'package:peaceful_mind/screens/ai_chat_screen.dart';
 import 'package:peaceful_mind/screens/mood_detection_screen.dart';
 import 'package:peaceful_mind/screens/comfort_food_screen.dart';
+import '../services/mood_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,9 +16,180 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   int _selectedMood = 3;
+  final MoodService _moodService = MoodService();
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+
+  Future<void> _handleMoodTap(int index) async {
+    setState(() => _selectedMood = index);
+    final moodData = _moods[index];
+    final String moodLabel = moodData['label'];
+    
+    // Default stress and hrv estimation based on selected mood
+    String stress = 'Normal';
+    String hrv = '72 ms';
+    if (moodLabel == 'Angry') {
+      stress = 'High';
+      hrv = '55 ms';
+    } else if (moodLabel == 'Sad') {
+      stress = 'Medium';
+      hrv = '60 ms';
+    } else if (moodLabel == 'Neutral') {
+      stress = 'Normal';
+      hrv = '70 ms';
+    } else if (moodLabel == 'Good') {
+      stress = 'Low';
+      hrv = '75 ms';
+    } else if (moodLabel == 'Great') {
+      stress = 'Minimal';
+      hrv = '85 ms';
+    }
+
+    try {
+      final result = await _moodService.recordMood(
+        mood: moodLabel,
+        stressLevel: stress,
+        hrv: hrv,
+      );
+      if (result != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Suasana hatimu hari ini tercatat: $moodLabel ${moodData['emoji']}'),
+            backgroundColor: moodData['color'],
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mencatat mood: ${e.toString()}'),
+            backgroundColor: AppColors.accentOrange,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showNotificationsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: Row(
+            children: const [
+              Text('🔔 ', style: TextStyle(fontSize: 20)),
+              Text(
+                'Notifikasi',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textDark,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNotificationItem(
+                emoji: '🧘‍♀️',
+                title: 'Daily Mindfulness',
+                body: 'Jangan lupa untuk meditasi hari ini selama 5 menit.',
+                time: '9:00 AM',
+              ),
+              const Divider(height: 16),
+              _buildNotificationItem(
+                emoji: '🔥',
+                title: 'Streak Berlanjut!',
+                body: 'Kamu sudah mempertahankan streak selama 14 hari berturut-turut.',
+                time: 'Yesterday',
+              ),
+              const Divider(height: 16),
+              _buildNotificationItem(
+                emoji: '📓',
+                title: 'Jurnal Harian',
+                body: 'Bagaimana perasaanmu sekarang? Tuliskan di jurnalmu.',
+                time: '2 days ago',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Tutup',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.sageDeep,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationItem({
+    required String emoji,
+    required String title,
+    required String body,
+    required String time,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundGreen.withOpacity(0.4),
+            shape: BoxShape.circle,
+          ),
+          child: Center(child: Text(emoji, style: const TextStyle(fontSize: 18))),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textDark,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                body,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textGrey,
+                  height: 1.3,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                time,
+                style: const TextStyle(
+                  fontSize: 9,
+                  color: AppColors.textLight,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   final List<Map<String, dynamic>> _moods = [
     {'emoji': '😠', 'label': 'Angry', 'color': Color(0xFFE85858)},
@@ -125,7 +297,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   Text(
                                     'Hi ',
                                     style: TextStyle(
-                                      fontFamily: 'Fredoka',
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textGrey,
@@ -137,7 +308,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                               Text(
                                 name,
                                 style: const TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.textDark,
@@ -146,15 +316,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ],
                           ),
                           const Spacer(),
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Center(
-                              child: Text('🔔', style: TextStyle(fontSize: 18)),
+                          GestureDetector(
+                            onTap: _showNotificationsDialog,
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Center(
+                                child: Text('🔔', style: TextStyle(fontSize: 18)),
+                              ),
                             ),
                           ),
                         ],
@@ -166,7 +339,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       const Text(
                         'Good morning,',
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textGrey,
@@ -176,7 +348,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       const Text(
                         "Welcome back,\nhow's your mind\ntoday?",
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 30,
                           fontWeight: FontWeight.w900,
                           color: AppColors.textDark,
@@ -202,7 +373,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                             Text(
                               'Search...',
                               style: TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 14,
                                 color: AppColors.textLight,
                               ),
@@ -246,7 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       children: List.generate(_moods.length, (i) {
                         final isSelected = _selectedMood == i;
                         return GestureDetector(
-                          onTap: () => setState(() => _selectedMood = i),
+                          onTap: () => _handleMoodTap(i),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: isSelected ? 58 : 52,
@@ -392,7 +562,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         Text(
           title,
           style: const TextStyle(
-            fontFamily: 'Fredoka',
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: AppColors.textDark,
@@ -402,7 +571,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           Text(
             action,
             style: const TextStyle(
-              fontFamily: 'Fredoka',
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.sageDark,
@@ -446,7 +614,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       child: Text(
                         act['title'],
                         style: const TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: AppColors.textDark,
@@ -480,7 +647,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: Text(
                     act['duration'],
                     style: const TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textDark,
@@ -544,7 +710,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     days[i],
                     style: TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight:
                       isToday ? FontWeight.w800 : FontWeight.w600,
@@ -572,7 +737,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         '5',
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: AppColors.sageDeep,
@@ -581,7 +745,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         'Day streak 🔥',
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textGrey,
@@ -604,7 +767,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         '73%',
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: AppColors.accentOrange,
@@ -613,7 +775,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         'Weekly goal',
                         style: TextStyle(
-                          fontFamily: 'Fredoka',
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textGrey,
@@ -646,7 +807,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Text(
                   '✨ Daily Inspiration',
                   style: TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.sageMedium,
@@ -656,7 +816,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Text(
                   '"Peace begins\nwith a smile."',
                   style: TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
@@ -667,7 +826,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                 Text(
                   '— Mother Teresa',
                   style: TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,
@@ -732,7 +890,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textDark,
@@ -742,7 +899,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textGrey,
@@ -760,7 +916,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: Text(
                       tag,
                       style: TextStyle(
-                        fontFamily: 'Fredoka',
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: accentColor,

@@ -248,7 +248,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                                 const Text(
                                   'MindBot AI',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.textDark,
@@ -268,7 +267,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                                     const Text(
                                       'Aktif • Konselor AI 24/7',
                                       style: TextStyle(
-                                        fontFamily: 'Fredoka',
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.textGrey,
@@ -294,7 +292,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                                 Text(
                                   'Privat',
                                   style: TextStyle(
-                                    fontFamily: 'Fredoka',
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.sageMedium,
@@ -324,7 +321,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                             child: Text(
                               'MindBot bukan pengganti psikolog profesional. Untuk krisis, hubungi Into The Light: 119 ext 8.',
                               style: TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textGrey,
@@ -391,7 +387,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                           child: Text(
                             reply,
                             style: const TextStyle(
-                              fontFamily: 'Fredoka',
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.textDark,
@@ -433,7 +428,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                               controller: _inputController,
                               focusNode: _focusNode,
                               style: const TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textDark,
@@ -441,7 +435,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                               decoration: const InputDecoration(
                                 hintText: 'Ceritakan perasaanmu...',
                                 hintStyle: TextStyle(
-                                  fontFamily: 'Fredoka',
                                   fontSize: 14,
                                   color: AppColors.textLight,
                                 ),
@@ -535,7 +528,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                   child: Text(
                     msg.text,
                     style: TextStyle(
-                      fontFamily: 'Fredoka',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: isAI ? AppColors.textDark : Colors.white,
@@ -582,7 +574,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                             label: Text(
                               'Cari $foodName Terdekat',
                               style: const TextStyle(
-                                fontFamily: 'Fredoka',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -597,7 +588,6 @@ class _AiChatScreenState extends State<AiChatScreen>
                 Text(
                   msg.time,
                   style: const TextStyle(
-                    fontFamily: 'Fredoka',
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textLight,

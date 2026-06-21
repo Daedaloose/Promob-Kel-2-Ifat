@@ -36,7 +36,7 @@ class PeacefulMindApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: mode,
       theme: ThemeData(
-        fontFamily: GoogleFonts.fredoka().fontFamily,
+        textTheme: GoogleFonts.fredokaTextTheme(ThemeData.light().textTheme),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB5D5C5),
           primary: const Color(0xFFB5D5C5),
@@ -46,7 +46,7 @@ class PeacefulMindApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        fontFamily: GoogleFonts.fredoka().fontFamily,
+        textTheme: GoogleFonts.fredokaTextTheme(ThemeData.dark().textTheme),
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB5D5C5),
