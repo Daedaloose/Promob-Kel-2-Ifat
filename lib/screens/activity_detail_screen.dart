@@ -449,7 +449,7 @@ class MindieComicIllustration extends StatelessWidget {
             ),
           ),
           child: Stack(
-            clipBehavior: ClipBehavior.none,
+            clipBehavior: Clip.none,
             children: [
               Text(
                 '💬 "$bubbleText"',
@@ -561,10 +561,6 @@ class _MindieComicPainter extends CustomPainter {
     final shadowColor = const Color(0xFFA57575);
 
     // ── BACKGROUND DETAILS ──
-    final bgDetailPaint = Paint()
-      ..color = AppColors.sageMedium.withValues(alpha: 0.08)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
     // Draw comic starbursts / sparkles
     _drawSparkle(canvas, Offset(cx - 80, cy - 40), 6);
     _drawSparkle(canvas, Offset(cx + 80, cy - 25), 8);
@@ -643,7 +639,7 @@ class _MindieComicPainter extends CustomPainter {
       final paperPaint = Paint()
         ..color = Colors.white
         ..style = PaintingStyle.fill;
-      canvas.drawRect(Rect.fromLTB(cx - 78, cy + 5 - hoverY, cx - 47, cy + 28 - hoverY), paperPaint);
+      canvas.drawRect(Rect.fromLTRB(cx - 78, cy + 5 - hoverY, cx - 47, cy + 28 - hoverY), paperPaint);
       
       // Garis kertas notes
       final rulePaint = Paint()
@@ -663,9 +659,6 @@ class _MindieComicPainter extends CustomPainter {
       final pencilPaint = Paint()
         ..color = Colors.amber
         ..style = PaintingStyle.fill;
-      final leadPaint = Paint()
-        ..color = Colors.black87
-        ..style = PaintingStyle.fill;
 
       // Gambar pensil miring
       final pencilPath = Path()
@@ -676,9 +669,6 @@ class _MindieComicPainter extends CustomPainter {
         ..close();
       canvas.drawPath(pencilPath, pencilPaint);
 
-      // Ujung pensil menulis di dekat buku
-      final double tipX = cx - 25;
-      final double tipY = cy + 5;
       
       // Garis penghubung tangan ke pensil
       final armPaint = Paint()
