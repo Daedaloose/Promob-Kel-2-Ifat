@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../services/settings_service.dart';
+import '../services/theme_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -156,6 +157,48 @@ class _SettingsScreenState extends State<SettingsScreen>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showPremiumDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Peaceful Mind Premium'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.auto_awesome),
+                title: Text('Unlimited AI Chat'),
+              ),
+              ListTile(
+                leading: Icon(Icons.insights),
+                title: Text('Advanced Mood Analytics'),
+              ),
+              ListTile(
+                leading: Icon(Icons.self_improvement),
+                title: Text('Custom Meditation Plans'),
+              ),
+              ListTile(
+                leading: Icon(Icons.support_agent),
+                title: Text('Priority Support'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Maybe Later'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Upgrade'),
             ),
           ],
         );
@@ -455,6 +498,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           iconBg: const Color(0xFFFAF2D0),
                           title: 'Upgrade to Premium',
                           trailing: null,
+                          onTap: _showPremiumDialog,
                           trailingWidget: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
