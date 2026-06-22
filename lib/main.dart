@@ -12,9 +12,20 @@ import 'package:peaceful_mind/screens/comfort_food_screen.dart';
 import 'services/theme_service.dart';
 import 'services/notification_service.dart';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.web,
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
+  
   await NotificationService.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
