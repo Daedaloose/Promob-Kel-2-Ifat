@@ -24,9 +24,9 @@ void main() async {
     );
   } else {
     await Firebase.initializeApp();
+    await NotificationService.init();
   }
   
-  await NotificationService.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
