@@ -22,6 +22,8 @@ class NotificationService {
   }
 
   static Future<void> requestPermission() async {
+    if (kIsWeb) return;
+    
     final status = await Permission.notification.status;
     if (status.isDenied) {
       await Permission.notification.request();
