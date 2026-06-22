@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 import 'package:peaceful_mind/screens/ai_chat_screen.dart';
+import 'package:peaceful_mind/screens/chat_history_screen.dart';
 import 'package:peaceful_mind/screens/mood_detection_screen.dart';
 import 'package:peaceful_mind/screens/comfort_food_screen.dart';
 import 'package:peaceful_mind/screens/activity_detail_screen.dart';
@@ -507,7 +508,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           color: const Color(0xFFD4E8D8),
                           accentColor: AppColors.sageDark,
                           onTap: () => Navigator.push(context,
-                              MaterialPageRoute(builder: (_) => const AiChatScreen())),
+                              MaterialPageRoute(builder: (_) => const ChatHistoryScreen())),
                         ),
                         const SizedBox(height: 12),
                         _buildFeatureCard(

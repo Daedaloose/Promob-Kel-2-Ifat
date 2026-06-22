@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen>
         password: password,
       );
       if (creds != null && mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       if (mounted) {

@@ -4,9 +4,11 @@ import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import '../services/chat_service.dart';
 import 'package:peaceful_mind/screens/comfort_food_screen.dart';
+import 'package:peaceful_mind/services/local_chat_state.dart';
 
 class AiChatScreen extends StatefulWidget {
-  const AiChatScreen({super.key});
+  final String? chatId;
+  const AiChatScreen({super.key, this.chatId});
 
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
@@ -23,14 +25,8 @@ class _AiChatScreenState extends State<AiChatScreen>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  final List<_ChatMessage> _messages = [
-    _ChatMessage(
-      text:
-      'Hai! Aku MindBot 🧠, asisten kesehatan mental kamu yang siap menemani kapan saja. Gimana perasaanmu hari ini?',
-      isAI: true,
-      time: '09:00',
-    ),
-  ];
+  late String? _currentChatId;
+  List<_ChatMessage> _messages = [];
 
   final List<String> _quickReplies = [
     '😔 Lagi sedih',
@@ -56,6 +52,8 @@ class _AiChatScreenState extends State<AiChatScreen>
   @override
   void initState() {
     super.initState();
+    _currentChatId = widget.chatId;
+    _loadMessages();
     _focusNode.onKeyEvent = (node, event) {
       if (event.logicalKey == LogicalKeyboardKey.enter) {
         final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
@@ -93,6 +91,101 @@ class _AiChatScreenState extends State<AiChatScreen>
     super.dispose();
   }
 
+  void _loadMessages() {
+    if (_currentChatId != null) {
+      final history = LocalChatState.chatHistories.firstWhere((h) => h['id'] == _currentChatId, orElse: () => {});
+      if (history.isNotEmpty && history['messages'] != null) {
+        final List msgs = history['messages'];
+        _messages = msgs.map((m) => _ChatMessage(
+          text: m['text'],
+          isAI: m['isAI'],
+          time: m['time'],
+        )).toList();
+      }
+    } else {
+      _messages = [
+        _ChatMessage(
+          text: 'Hai! Aku MindBot 🧠, asisten kesehatan mental kamu yang siap menemani kapan saja. Gimana perasaanmu hari ini?',
+          isAI: true,
+          time: _getCurrentTime(),
+        ),
+      ];
+    }
+  }
+
+  void _saveMessagesToState() {
+    if (_messages.isEmpty) return;
+    
+    final formattedMessages = _messages.map((m) => {
+      'text': m.text,
+      'isAI': m.isAI,
+      'time': m.time,
+    }).toList();
+
+    // Detect mood from the last user message or all user messages
+    String detectedMood = 'Netral';
+    Color detectedColor = const Color(0xFFF5D77A);
+    
+    final userMessages = _messages.where((m) => !m.isAI).toList();
+    if (userMessages.isNotEmpty) {
+      final combinedText = userMessages.map((m) => m.text.toLowerCase()).join(' ');
+      if (combinedText.contains('cemas') || combinedText.contains('takut') || combinedText.contains('stres') || combinedText.contains('deg-degan')) {
+        detectedMood = 'Cemas';
+        detectedColor = const Color(0xFFE8834A);
+      } else if (combinedText.contains('lelah') || combinedText.contains('capek') || combinedText.contains('burnout') || combinedText.contains('pusing')) {
+        detectedMood = 'Lelah';
+        detectedColor = const Color(0xFFE85858);
+      } else if (combinedText.contains('senang') || combinedText.contains('bahagia') || combinedText.contains('mendingan') || combinedText.contains('lega')) {
+        detectedMood = 'Bahagia';
+        detectedColor = const Color(0xFF8FCC8F);
+      } else if (combinedText.contains('sedih') || combinedText.contains('nangis') || combinedText.contains('kecewa')) {
+        detectedMood = 'Sedih';
+        detectedColor = const Color(0xFF5AB8C0);
+      }
+    }
+
+    if (_currentChatId == null) {
+      // Create new chat history
+      _currentChatId = DateTime.now().millisecondsSinceEpoch.toString();
+      
+      final now = DateTime.now();
+      final dateStr = '${_getWeekday(now.weekday)}, ${now.day} ${_getMonth(now.month)} ${now.year}';
+      
+      LocalChatState.chatHistories.insert(0, {
+        'id': _currentChatId,
+        'date': dateStr,
+        'time': _getCurrentTime(),
+        'mood': detectedMood,
+        'moodColor': detectedColor,
+        'lastMessage': _messages.last.text,
+        'messages': formattedMessages,
+      });
+    } else {
+      // Update existing
+      final idx = LocalChatState.chatHistories.indexWhere((h) => h['id'] == _currentChatId);
+      if (idx != -1) {
+        LocalChatState.chatHistories[idx]['messages'] = formattedMessages;
+        LocalChatState.chatHistories[idx]['lastMessage'] = _messages.last.text;
+        // Optionally update mood dynamically if it changes
+        LocalChatState.chatHistories[idx]['mood'] = detectedMood;
+        LocalChatState.chatHistories[idx]['moodColor'] = detectedColor;
+      }
+    }
+  }
+
+  String _getWeekday(int w) {
+    switch (w) {
+      case 1: return 'Senin'; case 2: return 'Selasa'; case 3: return 'Rabu';
+      case 4: return 'Kamis'; case 5: return 'Jumat'; case 6: return 'Sabtu'; case 7: return 'Minggu';
+      default: return '';
+    }
+  }
+  
+  String _getMonth(int m) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    return months[m - 1];
+  }
+
   final ChatService _chatService = ChatService();
 
   final List<String> _detectableFoods = [
@@ -124,10 +217,11 @@ class _AiChatScreenState extends State<AiChatScreen>
       _messages.add(_ChatMessage(
         text: trimmedText,
         isAI: false,
-        time: _nowTime(),
+        time: _getCurrentTime(),
       ));
       _isTyping = true;
     });
+    _saveMessagesToState();
     _inputController.clear();
     _scrollToBottom();
 
@@ -168,13 +262,14 @@ class _AiChatScreenState extends State<AiChatScreen>
       _messages.add(_ChatMessage(
         text: reply,
         isAI: true,
-        time: _nowTime(),
+        time: _getCurrentTime(),
       ));
     });
+    _saveMessagesToState();
     _scrollToBottom();
   }
 
-  String _nowTime() {
+  String _getCurrentTime() {
     final now = DateTime.now();
     return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
   }

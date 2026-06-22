@@ -4,7 +4,9 @@ import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../services/settings_service.dart';
 import '../services/theme_service.dart';
+import '../services/notification_service.dart';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -234,9 +236,10 @@ class _SettingsScreenState extends State<SettingsScreen>
     final String name = user?.displayName ?? 'Chloe Brooke';
     final String email = user?.email ?? 'chloe.brooke@email.com';
     final String? photoUrl = user?.photoURL;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F0),
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F0),
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: CustomScrollView(
@@ -244,7 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen>
             // Header
             SliverToBoxAdapter(
               child: Container(
-                color: AppColors.backgroundGreen,
+                color: isDark ? const Color(0xFF1E1E1E) : AppColors.backgroundGreen,
                 child: SafeArea(
                   bottom: false,
                   child: Padding(
@@ -255,7 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         Container(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.6),
+                            color: isDark ? Colors.black.withOpacity(0.3) : Colors.white.withOpacity(0.6),
                             borderRadius: BorderRadius.circular(22),
                           ),
                           child: Row(
@@ -329,19 +332,19 @@ class _SettingsScreenState extends State<SettingsScreen>
                                   children: [
                                     Text(
                                       name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w900,
-                                        color: AppColors.textDark,
+                                        color: isDark ? Colors.white : AppColors.textDark,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       email,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color: AppColors.textGrey,
+                                        color: isDark ? Colors.white70 : AppColors.textGrey,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -397,9 +400,9 @@ class _SettingsScreenState extends State<SettingsScreen>
             // Settings content
             SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF5F5F0),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F0),
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(28),
                     topRight: Radius.circular(28),
                   ),
@@ -421,8 +424,16 @@ class _SettingsScreenState extends State<SettingsScreen>
                           subtitle: 'Get notified at 9:00 AM',
                           value: _notifDaily,
                           onChanged: (v) async {
+                            HapticFeedback.lightImpact();
+                            if (_soundEnabled) SystemSound.play(SystemSoundType.click);
                             await SettingsService.setDailyReminder(v);
                             setState(() => _notifDaily = v);
+                            if (v) {
+                              NotificationService.showDummyNotification(
+                                'Daily Reminder',
+                                'Hi! Just a test notification. 🌸',
+                              );
+                            }
                           },
                         ),
                         _buildDivider(),
@@ -434,8 +445,16 @@ class _SettingsScreenState extends State<SettingsScreen>
                           subtitle: 'Remind me to log my mood',
                           value: _notifMood,
                           onChanged: (v) async {
+                            HapticFeedback.lightImpact();
+                            if (_soundEnabled) SystemSound.play(SystemSoundType.click);
                             await SettingsService.setMoodReminder(v);
                             setState(() => _notifMood = v);
+                            if (v) {
+                              NotificationService.showDummyNotification(
+                                'Mood Check-in',
+                                'How are you feeling today?',
+                              );
+                            }
                           },
                         ),
                         _buildDivider(),
@@ -447,6 +466,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                           subtitle: 'Don\'t break your streak!',
                           value: _notifStreak,
                           onChanged: (v) async {
+                            HapticFeedback.lightImpact();
+                            if (_soundEnabled) SystemSound.play(SystemSoundType.click);
                             await SettingsService.setStreakAlert(v);
                             setState(() => _notifStreak = v);
                           },
@@ -467,12 +488,14 @@ class _SettingsScreenState extends State<SettingsScreen>
                           subtitle: 'Switch to dark theme',
                           value: _darkMode,
                           onChanged: (v) async {
+                            HapticFeedback.lightImpact();
+                            if (_soundEnabled) SystemSound.play(SystemSoundType.click);
                             await SettingsService.setDarkMode(v);
                             ThemeService.setTheme(v);
-                              setState(() {
-                                _darkMode = v;
-                              });
-                            },
+                            setState(() {
+                              _darkMode = v;
+                            });
+                          },
                         ),
                         _buildDivider(),
                         _buildToggleItem(
@@ -483,6 +506,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                           subtitle: 'Enable app sounds',
                           value: _soundEnabled,
                           onChanged: (v) async {
+                            HapticFeedback.lightImpact();
+                            if (v) SystemSound.play(SystemSoundType.click);
                             await SettingsService.setSoundEnabled(v);
                             setState(() => _soundEnabled = v);
                           },
@@ -565,7 +590,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         onTap: () async {
                           await AuthService().signOut();
                           if (mounted) {
-                            Navigator.pushReplacementNamed(context, '/login');
+                            Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
                           }
                         },
                         child: Container(
@@ -662,31 +687,37 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w800,
-        color: AppColors.textGrey,
-        letterSpacing: 0.3,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: isDark ? Colors.white54 : AppColors.textGrey,
+        ),
       ),
     );
   }
 
   Widget _buildSettingsCard(List<Widget> children) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
+            color: isDark ? Colors.black26 : Colors.black.withOpacity(0.03),
+            blurRadius: 20,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(children: children),
+      child: Column(
+        children: children,
+      ),
     );
   }
 
@@ -712,25 +743,24 @@ class _SettingsScreenState extends State<SettingsScreen>
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textDark,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textDark,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textGrey,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : AppColors.textGrey,
                   ),
                 ),
               ],
@@ -774,29 +804,27 @@ class _SettingsScreenState extends State<SettingsScreen>
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textDark,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textDark,
               ),
             ),
           ),
           if (trailingWidget != null) trailingWidget,
-          if (trailing != null) ...[
-            const SizedBox(width: 6),
+          if (trailing != null)
             Text(
               trailing,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textGrey,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : AppColors.textGrey,
               ),
             ),
-          ],
           const SizedBox(width: 6),
           const Icon(
             Icons.chevron_right_rounded,

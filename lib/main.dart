@@ -10,10 +10,12 @@ import 'package:peaceful_mind/screens/ai_chat_screen.dart';
 import 'package:peaceful_mind/screens/mood_detection_screen.dart';
 import 'package:peaceful_mind/screens/comfort_food_screen.dart';
 import 'services/theme_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

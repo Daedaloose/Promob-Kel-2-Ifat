@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import '../services/mood_service.dart';
+import '../services/local_journal_state.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -28,32 +29,32 @@ class _StatsScreenState extends State<StatsScreen>
   List<Map<String, dynamic>> _weekData = [];
   List<Map<String, dynamic>> _moodDistribution = [];
 
-  final List<Map<String, dynamic>> _activities = [
+  List<Map<String, dynamic>> _activities = [
     {
       'name': 'Morning Yoga',
       'emoji': '🧘‍♀️',
-      'sessions': 12,
+      'sessions': 0,
       'total': 15,
       'color': const Color(0xFFEDE0D8),
     },
     {
       'name': 'Journaling',
       'emoji': '📓',
-      'sessions': 18,
+      'sessions': 0,
       'total': 30,
       'color': const Color(0xFFE8D8E8),
     },
     {
       'name': 'Meditation',
       'emoji': '🧠',
-      'sessions': 8,
+      'sessions': 0,
       'total': 15,
       'color': const Color(0xFFD8E8F0),
     },
     {
       'name': 'Breathing',
       'emoji': '💨',
-      'sessions': 20,
+      'sessions': 0,
       'total': 30,
       'color': const Color(0xFFD8F0E8),
     },
@@ -80,115 +81,46 @@ class _StatsScreenState extends State<StatsScreen>
 
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
-    final records = await _moodService.fetchMoodHistory();
 
-    if (records.isEmpty) {
-      setState(() {
-        _isLoading = false;
-        _totalSessions = 28;
-        _streak = 14;
-        _avgMoodScore = 7.4;
-        _weekData = [
-          {'day': 'M', 'score': 6.0, 'mood': '😐'},
-          {'day': 'T', 'score': 8.5, 'mood': '😍'},
-          {'day': 'W', 'score': 7.0, 'mood': '🙂'},
-          {'day': 'T', 'score': 5.0, 'mood': '😕'},
-          {'day': 'F', 'score': 9.0, 'mood': '😍'},
-          {'day': 'S', 'score': 7.5, 'mood': '🙂'},
-          {'day': 'S', 'score': 6.5, 'mood': '🙂'},
-        ];
-        _moodDistribution = [
-          {'label': 'Great', 'emoji': '😍', 'pct': 0.30, 'color': const Color(0xFF5AB8C0)},
-          {'label': 'Good', 'emoji': '🙂', 'pct': 0.35, 'color': const Color(0xFF8FCC8F)},
-          {'label': 'Neutral', 'emoji': '😐', 'pct': 0.18, 'color': const Color(0xFFF5D77A)},
-          {'label': 'Sad', 'emoji': '😕', 'pct': 0.12, 'color': const Color(0xFFE8834A)},
-          {'label': 'Angry', 'emoji': '😠', 'pct': 0.05, 'color': const Color(0xFFE85858)},
-        ];
-      });
-      return;
-    }
+    // Give a small delay to simulate processing and allow UI to render smoothly
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    double totalScore = 0.0;
-    int happyCount = 0;
-    int calmCount = 0;
-    int anxiousCount = 0;
-    int sadCount = 0;
-    int frustratedCount = 0;
+    final moodJournals = LocalJournalState.moodJournals;
+    final activityJournals = LocalJournalState.activityJournals;
 
-    final List<double> dayScores = List.filled(7, 0.0);
-    final List<int> dayCounts = List.filled(7, 0);
-    final List<String> dayEmojis = List.filled(7, '🙂');
-    final List<String> dayNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    _totalSessions = moodJournals.length + activityJournals.length;
 
+    // Determine Start Date for the selected period
     final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final startOfWeekDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
-
-    for (final item in records) {
-      final mood = item['mood'] ?? 'Tenang';
-      final createdAtStr = item['created_at'];
-      
-      double score = 7.5;
-      String emoji = '😌';
-      
-      if (mood == 'Bahagia' || mood == '😄' || mood == 'Great') {
-        score = 9.5;
-        emoji = '😄';
-        happyCount++;
-      } else if (mood == 'Tenang' || mood == '😌' || mood == 'Good') {
-        score = 8.0;
-        emoji = '😌';
-        calmCount++;
-      } else if (mood == 'Cemas' || mood == '😰' || mood == 'Neutral') {
-        score = 5.0;
-        emoji = '😰';
-        anxiousCount++;
-      } else if (mood == 'Sedih' || mood == '😢' || mood == 'Sad') {
-        score = 3.5;
-        emoji = '😢';
-        sadCount++;
-      } else if (mood == 'Frustrasi' || mood == '😤' || mood == 'Angry') {
-        score = 2.0;
-        emoji = '😤';
-        frustratedCount++;
-      } else {
-        calmCount++;
-      }
-
-      totalScore += score;
-
-      if (createdAtStr != null) {
-        try {
-          final createdAt = DateTime.parse(createdAtStr).toLocal();
-          if (createdAt.isAfter(startOfWeekDate) || createdAt.isAtSameMomentAs(startOfWeekDate)) {
-            final index = createdAt.weekday - 1;
-            dayScores[index] += score;
-            dayCounts[index]++;
-            dayEmojis[index] = emoji;
-          }
-        } catch (_) {}
-      }
+    DateTime startDate;
+    if (_selectedPeriod == 0) { // Week
+      startDate = now.subtract(Duration(days: now.weekday - 1));
+      startDate = DateTime(startDate.year, startDate.month, startDate.day);
+    } else if (_selectedPeriod == 1) { // Month
+      startDate = DateTime(now.year, now.month, 1);
+    } else { // Year
+      startDate = DateTime(now.year, 1, 1);
     }
 
-    _totalSessions = records.length;
-    _avgMoodScore = double.parse((totalScore / _totalSessions).toStringAsFixed(1));
-
+    // Calculate streak across ALL data
     final Map<String, bool> activeDays = {};
-    for (final item in records) {
-      if (item['created_at'] != null) {
-        try {
-          final date = DateTime.parse(item['created_at']).toLocal();
-          final key = '${date.year}-${date.month}-${date.day}';
-          activeDays[key] = true;
-        } catch (_) {}
-      }
+    for (final item in moodJournals) {
+      try {
+        final date = DateTime.fromMillisecondsSinceEpoch(int.parse(item['id'])).toLocal();
+        activeDays['${date.year}-${date.month}-${date.day}'] = true;
+      } catch (_) {}
     }
-    
+    for (final item in activityJournals) {
+      try {
+        final date = DateTime.fromMillisecondsSinceEpoch(int.parse(item['id'])).toLocal();
+        activeDays['${date.year}-${date.month}-${date.day}'] = true;
+      } catch (_) {}
+    }
+
     int streak = 0;
     DateTime checkDate = DateTime.now();
     while (true) {
-      final key = '${checkDate.year}-${checkDate.month}-${checkDate.day}';
-      if (activeDays[key] == true) {
+      if (activeDays['${checkDate.year}-${checkDate.month}-${checkDate.day}'] == true) {
         streak++;
         checkDate = checkDate.subtract(const Duration(days: 1));
       } else {
@@ -197,54 +129,108 @@ class _StatsScreenState extends State<StatsScreen>
     }
     _streak = streak;
 
-    _weekData = List.generate(7, (i) {
-      final avgScore = dayCounts[i] == 0 ? 0.0 : (dayScores[i] / dayCounts[i]);
+    // Parse Data for Trend & Distribution
+    double totalScore = 0.0;
+    int happyCount = 0, calmCount = 0, anxiousCount = 0, sadCount = 0, frustratedCount = 0;
+    int validMoods = 0;
+
+    int pointsCount = _selectedPeriod == 0 ? 7 : (_selectedPeriod == 1 ? 4 : 12);
+    final List<double> pointScores = List.filled(pointsCount, 0.0);
+    final List<int> pointCounts = List.filled(pointsCount, 0);
+    final List<String> pointEmojis = List.filled(pointsCount, '🙂');
+    
+    List<String> pointNames = [];
+    if (_selectedPeriod == 0) pointNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    else if (_selectedPeriod == 1) pointNames = ['W1', 'W2', 'W3', 'W4'];
+    else pointNames = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+
+    for (final item in moodJournals) {
+      try {
+        final date = DateTime.fromMillisecondsSinceEpoch(int.parse(item['id'])).toLocal();
+        // Ignore data outside the selected period for the chart
+        if (date.isBefore(startDate)) continue; 
+        
+        final mood = item['mood'] ?? 'Tenang';
+        double score = 7.5;
+        String emoji = '😌';
+        
+        if (mood == 'Bahagia' || mood == 'Great') { score = 9.5; emoji = '😄'; happyCount++; }
+        else if (mood == 'Tenang' || mood == 'Good') { score = 8.0; emoji = '😌'; calmCount++; }
+        else if (mood == 'Cemas' || mood == 'Neutral') { score = 5.0; emoji = '😰'; anxiousCount++; }
+        else if (mood == 'Sedih' || mood == 'Sad') { score = 3.5; emoji = '😢'; sadCount++; }
+        else if (mood == 'Lelah' || mood == 'Frustrasi') { score = 2.0; emoji = '😤'; frustratedCount++; }
+        
+        totalScore += score;
+        validMoods++;
+
+        int index = 0;
+        if (_selectedPeriod == 0) {
+          index = date.weekday - 1;
+        } else if (_selectedPeriod == 1) {
+          int week = ((date.day - 1) / 7).floor();
+          index = week > 3 ? 3 : week;
+        } else {
+          index = date.month - 1;
+        }
+
+        pointScores[index] += score;
+        pointCounts[index]++;
+        pointEmojis[index] = emoji;
+      } catch (_) {}
+    }
+
+    _avgMoodScore = validMoods > 0 ? double.parse((totalScore / validMoods).toStringAsFixed(1)) : 0.0;
+
+    _weekData = List.generate(pointsCount, (i) {
+      final avgScore = pointCounts[i] == 0 ? 0.0 : (pointScores[i] / pointCounts[i]);
       return {
-        'day': dayNames[i],
+        'day': pointNames[i],
         'score': avgScore == 0 ? 5.0 : avgScore,
-        'mood': dayEmojis[i],
+        'mood': pointEmojis[i],
       };
     });
 
     final int totalCount = happyCount + calmCount + anxiousCount + sadCount + frustratedCount;
     if (totalCount > 0) {
       _moodDistribution = [
-        {
-          'label': 'Bahagia',
-          'emoji': '😄',
-          'pct': happyCount / totalCount,
-          'color': const Color(0xFFF5D77A)
-        },
-        {
-          'label': 'Tenang',
-          'emoji': '😌',
-          'pct': calmCount / totalCount,
-          'color': const Color(0xFF8FCC8F)
-        },
-        {
-          'label': 'Cemas',
-          'emoji': '😰',
-          'pct': anxiousCount / totalCount,
-          'color': const Color(0xFFE8834A)
-        },
-        {
-          'label': 'Sedih',
-          'emoji': '😢',
-          'pct': sadCount / totalCount,
-          'color': const Color(0xFF5AB8C0)
-        },
-        {
-          'label': 'Frustrasi',
-          'emoji': '😤',
-          'pct': frustratedCount / totalCount,
-          'color': const Color(0xFFE85858)
-        },
+        {'label': 'Bahagia', 'emoji': '😄', 'pct': happyCount / totalCount, 'color': const Color(0xFFF5D77A)},
+        {'label': 'Tenang', 'emoji': '😌', 'pct': calmCount / totalCount, 'color': const Color(0xFF8FCC8F)},
+        {'label': 'Cemas', 'emoji': '😰', 'pct': anxiousCount / totalCount, 'color': const Color(0xFFE8834A)},
+        {'label': 'Sedih', 'emoji': '😢', 'pct': sadCount / totalCount, 'color': const Color(0xFF5AB8C0)},
+        {'label': 'Lelah/Frustrasi', 'emoji': '😤', 'pct': frustratedCount / totalCount, 'color': const Color(0xFFE85858)},
       ].where((element) => (element['pct'] as double) > 0).toList();
+    } else {
+      // Dummy data if empty
+      _moodDistribution = [
+        {'label': 'Kosong', 'emoji': '😶', 'pct': 1.0, 'color': Colors.grey[300]!},
+      ];
     }
 
     setState(() {
       _isLoading = false;
     });
+    _calculateActivityStats();
+  }
+
+  void _calculateActivityStats() {
+    // Import LocalJournalState here or at the top of the file
+    // Let's assume we import it. If we haven't, the compiler will catch it.
+    // Count activities from LocalJournalState
+    final activityJournals = LocalJournalState.activityJournals;
+    
+    // Reset sessions
+    for (var a in _activities) {
+      a['sessions'] = 0;
+    }
+
+    for (final journal in activityJournals) {
+      final name = journal['activityName'];
+      for (var a in _activities) {
+        if (a['name'] == name) {
+          a['sessions'] = (a['sessions'] as int) + 1;
+        }
+      }
+    }
   }
 
   @override
@@ -296,8 +282,12 @@ class _StatsScreenState extends State<StatsScreen>
                               final isSelected = _selectedPeriod == i;
                               return Expanded(
                                 child: GestureDetector(
-                                  onTap: () =>
-                                      setState(() => _selectedPeriod = i),
+                                  onTap: () {
+                                    if (_selectedPeriod != i) {
+                                      setState(() => _selectedPeriod = i);
+                                      _loadStats();
+                                    }
+                                  },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     margin: const EdgeInsets.all(4),
@@ -397,7 +387,7 @@ class _StatsScreenState extends State<StatsScreen>
                                   ),
                                   const SizedBox(height: 4),
                                   const Text(
-                                    'This week\'s emotional flow',
+                                    _selectedPeriod == 0 ? 'This week\'s emotional flow' : (_selectedPeriod == 1 ? 'This month\'s emotional flow' : 'This year\'s emotional flow'),
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,

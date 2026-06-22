@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
+import '../services/local_journal_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ActivityDetailScreen extends StatefulWidget {
   final Map<String, dynamic> activity;
@@ -63,15 +65,15 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen>
   String _getVideoId(String title) {
     final cleaned = title.replaceAll('\n', ' ').toLowerCase();
     if (cleaned.contains('yoga')) {
-      return 'sTANio_2E0Q'; // Yoga For Beginners
+      return 'v7AYKMP6rOE'; // Yoga For Beginners
     } else if (cleaned.contains('journal')) {
-      return 'YMz2P-4GPMg'; // Journaling for Clarity
+      return '8kYxG4eF-U'; // Journaling for Clarity
     } else if (cleaned.contains('sleep') || cleaned.contains('meditation')) {
-      return 'aEqlQvczU8Y'; // Guided Sleep Meditation
+      return '1ZYbU82GVz4'; // Guided Sleep Meditation
     } else if (cleaned.contains('breathing') || cleaned.contains('napas')) {
-      return 'tEmt11yZyvs'; // Box Breathing Exercise
+      return 'FJJazKtH_9I'; // Box Breathing Exercise
     }
-    return 'tEmt11yZyvs';
+    return 'FJJazKtH_9I';
   }
 
   Map<String, String> _getSourceInfo(String title) {
@@ -227,6 +229,38 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen>
                     animation: _animationController,
                   ),
 
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final now = DateTime.now();
+                        final String timeStr = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+                        
+                        await LocalJournalState.addActivity({
+                          'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                          'date': 'Hari ini',
+                          'time': timeStr,
+                          'activityName': widget.activity['title'].replaceAll('\n', ' '),
+                          'emoji': widget.activity['emoji'] ?? '✨',
+                          'duration': widget.activity['duration'] ?? '15 min',
+                          'intensity': 'Sedang',
+                          'color': widget.activity['color'] ?? const Color(0xFFEDE0D8),
+                        });
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Aktivitas berhasil dicatat di Jurnal!')),
+                        );
+                      },
+                      icon: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 18),
+                      label: const Text('Tambahkan Jurnalmu Skrg', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.sageDeep,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
 
                   // YouTube Player Card
@@ -264,7 +298,27 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen>
                       ),
                     ),
                   ),
-
+                  const SizedBox(height: 12),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => _launchSourceUrl(
+                          'https://www.youtube.com/watch?v=${_getVideoId(widget.activity['title'])}'),
+                      icon: const Icon(Icons.open_in_new,
+                          size: 16, color: AppColors.textDark),
+                      label: const Text('Buka di Aplikasi YouTube (Alternatif)',
+                          style: TextStyle(
+                              color: AppColors.textDark,
+                              fontWeight: FontWeight.w700)),
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.backgroundGreen,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 28),
 
                   // Panduan langkah demi langkah
