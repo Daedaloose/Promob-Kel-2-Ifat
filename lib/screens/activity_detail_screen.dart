@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/local_journal_state.dart';
@@ -16,28 +15,11 @@ class ActivityDetailScreen extends StatefulWidget {
 
 class _ActivityDetailScreenState extends State<ActivityDetailScreen>
     with SingleTickerProviderStateMixin {
-  late YoutubePlayerController _ytController;
   late AnimationController _animationController;
-  bool _isPlayerReady = false;
 
   @override
   void initState() {
     super.initState();
-    
-    // Inisialisasi video ID berdasarkan judul aktivitas
-    final videoId = _getVideoId(widget.activity['title']);
-    _ytController = YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: false,
-        mute: false,
-        disableDragSeek: false,
-        loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: true,
-      ),
-    )..addListener(_onPlayerStateChange);
 
     // Kontroler animasi untuk visualisasi komik Mochi-Brain
     _animationController = AnimationController(
@@ -46,18 +28,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen>
     )..repeat(reverse: true);
   }
 
-  void _onPlayerStateChange() {
-    if (mounted && _ytController.value.isReady && !_isPlayerReady) {
-      setState(() {
-        _isPlayerReady = true;
-      });
-    }
-  }
-
   @override
   void dispose() {
-    _ytController.removeListener(_onPlayerStateChange);
-    _ytController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -263,9 +235,9 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen>
 
                   const SizedBox(height: 24),
 
-                  // YouTube Player Card
+                  // YouTube Player Card -> Diganti jadi Button (Web Support)
                   const Text(
-                    '🎬 Video Panduan Terintegrasi',
+                    '🎬 Video Panduan',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
@@ -273,28 +245,61 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen>
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        )
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: YoutubePlayer(
-                        controller: _ytController,
-                        showVideoProgressIndicator: true,
-                        progressIndicatorColor: AppColors.sageDeep,
-                        progressColors: const ProgressBarColors(
-                          playedColor: AppColors.sageDeep,
-                          handleColor: AppColors.sageDark,
-                        ),
+                  InkWell(
+                    onTap: () {
+                      final videoId = _getVideoId(widget.activity['title']);
+                      _launchSourceUrl('https://www.youtube.com/watch?v=$videoId');
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: const Color(0xFFE5E5E5), width: 1.5),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF0000).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFFF0000), size: 24),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Tonton di YouTube',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textDark,
+                                  ),
+                                ),
+                                Text(
+                                  'Buka video panduan meditasi',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textGrey, size: 14),
+                        ],
                       ),
                     ),
                   ),
