@@ -18,7 +18,7 @@ class NotificationService {
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
-    await _notificationsPlugin.initialize(initializationSettings: initializationSettings);
+    await _notificationsPlugin.initialize(settings: initializationSettings);
   }
 
   static Future<void> requestPermission() async {
