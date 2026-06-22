@@ -107,13 +107,46 @@ Jika Anda ingin menjalankan backend secara lokal:
 
 ---
 
-## 📦 Kompilasi APK (Build Android)
-Untuk membangun paket APK debug guna keperluan pengujian di perangkat lain:
+## 📦 Kompilasi & Deployment
+
+### 📱 Build Android (APK)
+Untuk membangun paket APK release guna keperluan pengujian di perangkat Android:
 ```bash
-flutter build apk --debug
+flutter build apk --release
 ```
 Berkas APK yang berhasil dikompilasi dapat ditemukan pada direktori:
-`build/app/outputs/flutter-apk/app-debug.apk`
+`build/app/outputs/flutter-apk/app-release.apk`
+
+### 🌐 Build Web (Static HTML)
+Aplikasi ini mendukung platform Web sepenuhnya. Untuk mem-build versi web secara lokal:
+```bash
+flutter build web --release
+```
+Hasil file statis akan tersimpan di dalam direktori: `build/web/`
+
+### 🚀 CI/CD Vercel Deployment (Auto-Update Web)
+Untuk mengonline-kan aplikasi Web secara gratis dengan sistem pembaruan otomatis (CI/CD) via Vercel:
+1. Buka [Vercel Dashboard](https://vercel.com/) dan buat **New Project**.
+2. **Import** repositori GitHub ini (Pilih *Third-party Git URL* jika ini adalah repositori kolaborasi teman).
+3. Pada halaman **Configure Project** (Build & Development Settings), atur menjadi:
+   - **Framework Preset**: `Other`
+   - **Build Command** *(Nyalakan Override)*:
+     ```bash
+     if [ -d "flutter" ]; then echo "Flutter exist"; else git clone https://github.com/flutter/flutter.git -b stable; fi && ./flutter/bin/flutter build web --release
+     ```
+   - **Output Directory** *(Nyalakan Override)*: `build/web`
+4. Klik **Deploy**.
+
+**Trik Khusus untuk Kolaborator (Forked Vercel Remote):**
+Jika Vercel membuat duplikat (*fork*) repositori di akun pribadimu, kamu bisa menyetel Git di laptopmu agar proses *push* mengupdate kedua repositori sekaligus (repositori asli dan *website live*):
+```bash
+git remote add vercel https://github.com/akun_github_kamu/Promob-Kel-2-Ifat.git
+```
+Rutinitas *push* kamu menjadi:
+```bash
+git push               # Push ke repositori asli temanmu (origin)
+git push vercel main   # Memicu Vercel untuk mengupdate website secara otomatis
+```
 
 ---
 
