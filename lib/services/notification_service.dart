@@ -18,7 +18,7 @@ class NotificationService {
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
-    await _notificationsPlugin.initialize(initializationSettings);
+    await _notificationsPlugin.initialize(initializationSettings: initializationSettings);
   }
 
   static Future<void> requestPermission() async {
@@ -41,10 +41,10 @@ class NotificationService {
     const NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
     await _notificationsPlugin.show(
-      0,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
       payload: 'item x',
     );
   }

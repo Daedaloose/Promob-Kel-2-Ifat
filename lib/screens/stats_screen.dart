@@ -386,9 +386,9 @@ class _StatsScreenState extends State<StatsScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
+                                  Text(
                                     _selectedPeriod == 0 ? 'This week\'s emotional flow' : (_selectedPeriod == 1 ? 'This month\'s emotional flow' : 'This year\'s emotional flow'),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textGrey,
